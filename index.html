@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Joe Wilm</title>
+
+  <style>
+    #top-accent {
+      width: 100%;
+      height: 5px;
+      background-color: #009EFF;
+    }
+
+    article {
+      text-align: center;
+      padding: 1em;
+      border-radius: 4px;
+      border: 1px solid #D3EBFA;
+
+      background-color: #fff;
+    }
+
+    a {
+      text-decoration: none;
+      color: #009EFF;
+    }
+
+    a:visited {
+      color: #009EFF;
+    }
+
+    a:hover {
+      color: #0080CF;
+      transition: color 0.3s;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+      background-color: #EEF4F7;
+      color: #444;
+    }
+
+    #root {
+      width: 800px;
+      margin: 0 auto;
+      padding-top: 2em;
+    }
+
+    #intro {
+      display: flex;
+      font-size: 1.4em;
+      line-height: 1.4em;
+    }
+
+    #intro p {
+      margin-right: 1em;
+    }
+
+    #photo-jwilm {
+      float: right;
+      min-width: 230px;
+      height: 230px;
+      border-radius: 5px;
+    }
+
+    #logo {
+      font-size: 2em;
+      margin-left: 1em;
+      position: relative;
+      bottom: -8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Accent bar on top -->
+  <div id="top-accent"></div>
+
+  <!-- Content container -->
+  <div id="root">
+
+    <div id="logo">
+      <strong>jwilm</strong><span>.</span><em>io</em>
+    </div>
+
+    <article id="intro">
+      <p>
+        Hi, I'm Joe Wilm. My current job is software engineering at
+        <a href="http://www.weeby.co">weeby.co</a> building an
+        <a href="https://github.com/gameclosure/devkit">HTML5 game engine</a>.
+        Find me on <a href="https://github.com/jwilm">GitHub</a>.
+      </p>
+
+      <img id="photo-jwilm" src="https://avatars2.githubusercontent.com/u/4285147?v=3&s=460"/>
+    </article>
+
+  </div>
+
+</body>
+</html>
