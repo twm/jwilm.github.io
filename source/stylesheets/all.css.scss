@@ -1,6 +1,8 @@
 $break-small: 768px;
 $break-large: 1024px;
 
+@import 'highlighting.css';
+
 @mixin respond-to($media) {
   @if $media == handhelds {
     @media only screen and (max-width: $break-small - 1) { @content; }
@@ -163,7 +165,7 @@ body {
     code {
       overflow-x: hidden;
       line-height: 1.3em;
-      font-size: .8em;
+      // font-size: .8em;
       display: block;
       @include magic-width;
       margin: 0 auto;
