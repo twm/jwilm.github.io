@@ -49,7 +49,13 @@ end
 activate :syntax
 
 set :markdown_engine, :redcarpet
-set :markdown, :fenced_code_blocks => true, :smartypants => true
+set :markdown,
+  :fenced_code_blocks => true,
+  :smartypants => true,
+  :superscript => true,
+  :footnotes => true,
+  :autolink => true,
+  :with_toc_data => true
 
 
 page "/feed.xml", layout: false

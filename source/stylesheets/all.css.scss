@@ -173,7 +173,7 @@ body {
   }
 
   // inline `code`
-  p > code {
+  p > code, li > code {
     background-color: #f8f8f8;
     border-radius: 3px;
     border: 1px solid #eee;

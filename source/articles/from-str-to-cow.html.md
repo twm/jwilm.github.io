@@ -150,7 +150,7 @@ There's a lot going on here. First, the function now has a generic type
 parameter, `S`. The argument `raw` has this type. The line reading `where S:
 Into<String>` limits the types of `S` to *anything* that implements
 `Into<String>`. Since the standard library already provides `Into<String>` for
-`&str` and `String` [#1](#1_2), our use case is handled.
+`&str` and for `String`, our use case is handled. ^[1](#1)
 
 Although the ergonomics have been greatly improved, there's still an issue with
 this API. Passing a `&str` to `new` requires an allocation to store the value as
@@ -159,7 +159,7 @@ a `String`.
 # Cow to the rescue
 
 The standard library has a type
-[::std::borrow:Cow](https://doc.rust-lang.org/std/borrow/enum.Cow.html) which
+[`std::borrow:Cow`](https://doc.rust-lang.org/std/borrow/enum.Cow.html) which
 enables us to keep the ergonomics of the `Into<String>` API while also allowing
 for borrowed values like a `&str`.
 
@@ -219,8 +219,9 @@ let token = Token::new(Cow::Owned(secret));
 ```
 
 A Token can now be created with either an owned or a borrowed type, but we've
-lost the API ergonomics! `Into` to the rescue again. The final Token
-implementation looks like this.
+lost the API ergonomics! `Into` can do the same thing for our `Cow<'a, str>` as
+it did for a simple `String` earlier. The final Token implementation looks like
+this.
 
 ```rust
 struct Token<'a> {
