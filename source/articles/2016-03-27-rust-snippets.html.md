@@ -3,7 +3,7 @@ title: Rust Snippets
 date: 2016-03-27
 tags: Vim, Rust
 published: false
-slug: rust-snippets
+slug: /rust-snippets
 ---
 
 Rust saves you from a lot of really terrible things, but one thing is
