@@ -2,7 +2,6 @@
 title: YouCompleteMe, Rust
 date: 2016-01-08
 tags: Vim, YouCompleteMe, Rust
-slug: youcompleteme-rust
 ---
 
 [YouCompleteMe][] now supports Rust auto-completion and GoTo. Rust semantic
