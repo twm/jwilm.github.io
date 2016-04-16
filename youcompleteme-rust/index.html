@@ -1,0 +1,383 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight .cm {
+  color: #999988;
+  font-style: italic;
+}
+.highlight .cp {
+  color: #999999;
+  font-weight: bold;
+}
+.highlight .c1 {
+  color: #999988;
+  font-style: italic;
+}
+.highlight .cs {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic;
+}
+.highlight .c, .highlight .cd {
+  color: #999988;
+  font-style: italic;
+}
+.highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+.highlight .gd {
+  color: #000000;
+  background-color: #ffdddd;
+}
+.highlight .ge {
+  color: #000000;
+  font-style: italic;
+}
+.highlight .gr {
+  color: #aa0000;
+}
+.highlight .gh {
+  color: #999999;
+}
+.highlight .gi {
+  color: #000000;
+  background-color: #ddffdd;
+}
+.highlight .go {
+  color: #888888;
+}
+.highlight .gp {
+  color: #555555;
+}
+.highlight .gs {
+  font-weight: bold;
+}
+.highlight .gu {
+  color: #aaaaaa;
+}
+.highlight .gt {
+  color: #aa0000;
+}
+.highlight .kc {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .kd {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .kn {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .kp {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .kr {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .kt {
+  color: #445588;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kv {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .mf {
+  color: #009999;
+}
+.highlight .mh {
+  color: #009999;
+}
+.highlight .il {
+  color: #009999;
+}
+.highlight .mi {
+  color: #009999;
+}
+.highlight .mo {
+  color: #009999;
+}
+.highlight .m, .highlight .mb, .highlight .mx {
+  color: #009999;
+}
+.highlight .sb {
+  color: #d14;
+}
+.highlight .sc {
+  color: #d14;
+}
+.highlight .sd {
+  color: #d14;
+}
+.highlight .s2 {
+  color: #d14;
+}
+.highlight .se {
+  color: #d14;
+}
+.highlight .sh {
+  color: #d14;
+}
+.highlight .si {
+  color: #d14;
+}
+.highlight .sx {
+  color: #d14;
+}
+.highlight .sr {
+  color: #009926;
+}
+.highlight .s1 {
+  color: #d14;
+}
+.highlight .ss {
+  color: #990073;
+}
+.highlight .s {
+  color: #d14;
+}
+.highlight .na {
+  color: #008080;
+}
+.highlight .bp {
+  color: #999999;
+}
+.highlight .nb {
+  color: #0086B3;
+}
+.highlight .nc {
+  color: #445588;
+  font-weight: bold;
+}
+.highlight .no {
+  color: #008080;
+}
+.highlight .nd {
+  color: #3c5d5d;
+  font-weight: bold;
+}
+.highlight .ni {
+  color: #800080;
+}
+.highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+.highlight .nf {
+  color: #990000;
+  font-weight: bold;
+}
+.highlight .nl {
+  color: #990000;
+  font-weight: bold;
+}
+.highlight .nn {
+  color: #555555;
+}
+.highlight .nt {
+  color: #000080;
+}
+.highlight .vc {
+  color: #008080;
+}
+.highlight .vg {
+  color: #008080;
+}
+.highlight .vi {
+  color: #008080;
+}
+.highlight .nv {
+  color: #008080;
+}
+.highlight .ow {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .o {
+  color: #000000;
+  font-weight: bold;
+}
+.highlight .w {
+  color: #bbbbbb;
+}
+.highlight {
+  background-color: #f8f8f8;
+}
+
+    </style>
+
+    <link href="/stylesheets/all.css" rel="stylesheet" />
+
+    <title>
+    YouCompleteMe, Rust
+    </title>
+    <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/feed.xml" />
+  </head>
+  <body>
+
+    <navbar>
+    <h1 class="site-title"><a href="//blog.jwilm.io">JOE WILM</a></h1>
+    <span class="social-links"></span>
+    </navbar>
+
+    <div id="main" role="main">
+        <div class="article-info">
+  <p class="article-date">JANUARY  8, 2016</p>
+  <h2 class="article-title"><a href="youcompleteme-rust">YouCompleteMe, Rust</a></h2>
+</div>
+
+
+      <p><a href="https://github.com/valloric/YouCompleteMe">YouCompleteMe</a> now supports Rust auto-completion and GoTo. Rust semantic
+analysis is provided by <a href="https://github.com/jwilm/racerd">racerd</a>, a JSON/HTTP server powered by <a href="https://github.com/phildawes/racer">racer</a>. YCM
+with Rust provides a superior experience to current vim-racer, emacs-racer, and
+other racer-based plugins.</p>
+
+<p></p>
+
+<p><a href="http://img.svbtle.com/xtrifoeons6nfa.gif"><img alt="ycm_rust_launch.gif" src="https://d23f6h5jpj26xu.cloudfront.net/xtrifoeons6nfa_small.gif" /></a></p>
+
+<h1>YouCompleteMe</h1>
+
+<p>For the uninitiated, <a href="https://github.com/valloric/YouCompleteMe">YouCompleteMe</a> is a fast, fuzzy, as-you-type
+code-completion engine built originally for Vim. YCM runs on Mac, Linux, and
+Windows and includes completion engines for C/C++, ObjC, Python, C#, Go,
+TypeScript, JavaScript, and now Rust. YCM additionally provides an identifier
+based completion engine to supplement semantic completers and provide
+completions for languages without native support.</p>
+
+<p>The YCM core, <a href="https://github.com/valloric/ycmd">ycmd</a>, exists <a href="https://val.markovic.io/articles/youcompleteme-as-a-server">as an independent project</a>;
+clients for <a href="https://github.com/valloric/YouCompleteMe">Vim</a>, <a href="https://github.com/abingham/emacs-ycmd">Emacs</a>, and <a href="https://atom.io/packages/you-complete-me">Atom</a>
+all share the same infrastructure. The complete list of known clients is found
+in <a href="https://github.com/Valloric/ycmd#known-ycmd-clients">the ycmd README</a>. If a ycmd client does not exist for
+<code>$EDITOR</code>, integrating with ycmd is as simple as integrating with a REST API.
+The <a href="https://github.com/Valloric/ycmd/tree/master/examples">ycmd example client</a> shows how it&rsquo;s done.</p>
+
+<h1>Rust</h1>
+
+<blockquote>
+<p><a href="http://rust-lang.org">Rust</a> is a systems programming language that runs
+blazingly fast, prevents segfaults, and guarantees thread safety. </p>
+</blockquote>
+
+<p>Support for Rust is now available in YCM. The result is a powerful development
+environment providing completions and GoTo in your favorite editor. Examples
+below assume your editor is Vim. For other editors, please reference their YCM
+client.</p>
+
+<h2>Completions</h2>
+
+<p>Semantic completions in YCM are provided when a <em>semantic trigger</em>, <code>.</code>, or
+<code>::</code>, is detected. In the provided example, you can see a completion menu
+immediately appear after typing <code>std::</code>, <code>std::collections::</code>, and <code>Vec::</code>; no
+hotkey was necessary. As you continue to type, YCM fuzzy-filters available
+completions using your input to narrow the completion list.</p>
+
+<h2>GoTo</h2>
+
+<p>The YCM Rust Completer provides the <code>GoTo</code> subcommand. <code>GoTo</code> attempts to find
+where the identifier under the cursor is defined. If successful, a buffer is
+opened for the file containing the definition, and the cursor is placed on the
+definition.</p>
+
+<p>The complete GoTo command in Vim is <code>:YcmCompleter GoTo</code>, and I highly recommend
+mapping it to some hotkey. Example:</p>
+<pre class="highlight viml"><code>nnoremap <span class="p">&lt;</span>Leader<span class="p">&gt;]</span> <span class="p">:</span>YcmCompleter GoTo<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+</code></pre>
+
+<h2>YCM Configuration (Vim)</h2>
+
+<p>Rust completions and GoTo from the current crate and its dependencies will be
+available without any additional configuration. For completions in the standard
+library, a single variable <code>g:ycm_rust_src_path</code> must be defined in your .vimrc.</p>
+<pre class="highlight viml"><code><span class="c">" Naturally, this needs to be set to wherever your rust</span>
+<span class="c">" source tree resides.</span>
+<span class="k">let</span> <span class="nv">g:ycm_rust_src_path</span> <span class="p">=</span> <span class="s1">'/usr/local/rust/rustc-1.5.0/src'</span>
+</code></pre>
+
+<h1>Differences from vim-racer, emacs-racer, and others</h1>
+
+<p>Since <code>racerd</code>, and subsequently YCM&rsquo;s Rust Completer are powered by <code>racer</code>,
+the same code-completion and find-definition features are available. The
+addition of YCM to this equation provides a <em>massive</em> quality-of-life
+improvement over the existing plugins:</p>
+
+<ul>
+<li>No hotkey required for completions</li>
+<li>Fuzzy search of available completions</li>
+<li>Identifier-based completion engine to supplement rust completions</li>
+<li>Performance: Completions are cached within YCM, and latency with racerd is
+typically only a few ms once files are cached from disk. This is discussed
+more in the racerd section following.</li>
+</ul>
+
+<h1>racerd</h1>
+
+<p><a href="https://github.com/jwilm/racerd">racerd</a> is suitable for providing completions and find-definition support for
+<em>any</em> Rust IDE and is not constrained to YCM. It provides several benefits over
+integrating racer via the command line or with the racer <code>daemon</code> flag.</p>
+
+<ol>
+<li><p>Persistent file caching: When starting a new racer process for every
+completion, or when running racer in daemon mode, the cache is thrown out
+after each operation. Racerd keeps this cache between requests. This gives a
+nice performance boost since files only need to be read from disk once.</p></li>
+<li><p>Support for dirty buffers: <a href="https://github.com/jwilm/racerd/blob/master/docs/API.md">Racerd&rsquo;s JSON API</a> supports a <code>buffers</code> field -
+a list of file paths (which need not exist) and associated contents which is
+added to the racer cache before performing a query. This feature eliminates
+the need for temporary files.</p></li>
+<li><p>HTTP/JSON API: Very effective method for integrating a semantic completion
+engine. Just about every language has a built-in or library for querying such
+an API, and it is extremely performant on localhost (a few ms for completing
+out of standard library). The process is long lived; there is no process
+startup overhead for each query. Racerd also has <a href="https://github.com/jwilm/racerd/blob/master/docs/API.md">extensive API
+documentation</a>.</p></li>
+</ol>
+
+<h1>Giving Thanks</h1>
+
+<p>YouCompleteMe would not be the fantastic project it is, both technically and as
+a positive open-source community, without the work of <a href="https://github.com/valloric">@Valloric</a> and the YCM
+team <a href="https://github.com/micbou">@micbou</a>, <a href="https://github.com/oblitum">@oblitum</a>, <a href="https://github.com/vheon">@vheon</a>, and <a href="https://github.com/puremourning">@puremourning</a>. <a href="https://github.com/jwilm/racerd">racerd</a> and
+YCM&rsquo;s Rust completer would not have been possible without <a href="https://github.com/phildawes">@phildawes</a>&rsquo;
+fantastic <a href="https://github.com/phildawes/racer">racer</a> library. Thanks to <a href="https://github.com/birkenfeld">@birkenfeld</a> for his assistance
+implementing some changes in racer to make racerd possible. Thanks to <a href="https://github.com/reem">@reem</a>
+whom I pestered with far too many questions in #<em>iron</em>. Finally, thanks to the
+YCM team for reading drafts of this post.</p>
+
+    </div>
+
+    <!--
+    <aside>
+      <h2>Recent Articles</h2>
+      <ol>
+          <li><a href="/youcompleteme-rust/">YouCompleteMe, Rust</a>
+            <span>JANUARY  8, 2016</span></li>
+      </ol>
+
+      <h2>Tags</h2>
+      <ol>
+          <li><a href="/tags/vim/">Vim (1)</a></li>
+          <li><a href="/tags/youcompleteme/">YouCompleteMe (1)</a></li>
+          <li><a href="/tags/rust/">Rust (1)</a></li>
+      </ol>
+
+      <h2>By Year</h2>
+      <ol>
+          <li><a href="/2016/">2016 (1)</a></li>
+      </ol>
+    </aside>
+    -->
+  </body>
+</html>

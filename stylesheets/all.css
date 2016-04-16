@@ -1,0 +1,195 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700|Libre+Baskerville|Ubuntu+Mono:400,400italic,700,700italic);
+@media only screen and (max-width: 767px) {
+  body {
+    font-size: 14px; } }
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+  body {
+    font-size: 16px; } }
+@media only screen and (min-width: 1024px) {
+  body {
+    font-size: 16px; } }
+body {
+  overflow-y: scroll;
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.6em;
+  color: #333; }
+  body h1, body h2, body h3, body h4, body h5, body h6 {
+    font-family: 'Libre Baskerville', serif;
+    line-height: 1.3em;
+    letter-spacing: 1px;
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+    margin-left: auto;
+    margin-right: auto; }
+  body h1 {
+    font-size: 1.6em; }
+  body h2 {
+    font-size: 1.5em; }
+  body h3 {
+    font-size: 1.4em; }
+  body h4 {
+    font-size: 1.3em; }
+  body h5 {
+    font-size: 1.2em; }
+  body h6 {
+    font-size: 1.1em; }
+  body a {
+    color: #333;
+    text-decoration: none;
+    border-bottom: 2px solid #DAEDFF; }
+  body code {
+    font-family: 'Ubuntu Mono', monospace; }
+
+.article-header {
+  margin-top: 2em;
+  margin-bottom: 1em; }
+
+#main {
+  margin: 0 auto; }
+  #main p, #main ul, #main ol {
+    margin: 0em auto; }
+    @media only screen and (max-width: 767px) {
+      #main p, #main ul, #main ol {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      #main p, #main ul, #main ol {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 1024px) {
+      #main p, #main ul, #main ol {
+        max-width: 640px; } }
+  #main li {
+    max-width: 94%; }
+  @media only screen and (max-width: 767px) {
+    #main span {
+      max-width: 92vw; } }
+  @media only screen and (min-width: 768px) and (max-width: 1023px) {
+    #main span {
+      max-width: 92vw; } }
+  @media only screen and (min-width: 1024px) {
+    #main span {
+      max-width: 640px; } }
+  #main img {
+    display: block;
+    margin: 0 auto; }
+    @media only screen and (max-width: 767px) {
+      #main img {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      #main img {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 1024px) {
+      #main img {
+        max-width: 640px; } }
+  #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
+    margin-left: auto;
+    margin-right: auto; }
+    @media only screen and (max-width: 767px) {
+      #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 1024px) {
+      #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
+        max-width: 640px; } }
+  #main p {
+    margin: 1.4em auto; }
+    @media only screen and (max-width: 767px) {
+      #main p {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      #main p {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 1024px) {
+      #main p {
+        max-width: 640px; } }
+  #main blockquote {
+    margin: 0 auto;
+    color: #666;
+    font-style: italic; }
+    @media only screen and (max-width: 767px) {
+      #main blockquote {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      #main blockquote {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 1024px) {
+      #main blockquote {
+        max-width: 640px; } }
+    #main blockquote p {
+      padding: 0 2em; }
+    #main blockquote a {
+      color: inherit; }
+  #main pre {
+    padding: 20px 0;
+    margin: 20px auto;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee; }
+    #main pre code {
+      overflow-x: hidden;
+      line-height: 1.3em;
+      font-size: .8em;
+      display: block;
+      margin: 0 auto; }
+      @media only screen and (max-width: 767px) {
+        #main pre code {
+          max-width: 92vw; } }
+      @media only screen and (min-width: 768px) and (max-width: 1023px) {
+        #main pre code {
+          max-width: 92vw; } }
+      @media only screen and (min-width: 1024px) {
+        #main pre code {
+          max-width: 640px; } }
+  #main p > code {
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    border: 1px solid #eee;
+    padding-left: 2px;
+    padding-right: 2px; }
+  #main .asciicast {
+    margin: 0 auto !important; }
+    @media only screen and (max-width: 767px) {
+      #main .asciicast {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      #main .asciicast {
+        max-width: 92vw; } }
+    @media only screen and (min-width: 1024px) {
+      #main .asciicast {
+        max-width: 640px; } }
+  #main .article-info {
+    margin-top: 3em; }
+    #main .article-info a {
+      border: none; }
+    #main .article-info .article-date {
+      color: #666;
+      margin: 0 auto;
+      font-weight: 700;
+      font-size: 0.8em;
+      margin-bottom: 0.5em; }
+    #main .article-info .article-title {
+      margin-top: 0em; }
+  #main .article-preview {
+    margin-bottom: 3em; }
+
+pre.highlight {
+  width: 100vw;
+  position: relative;
+  x: 0; }
+
+navbar {
+  display: block;
+  margin-top: 1em; }
+  navbar .site-title {
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    font-size: 20px;
+    color: #44522F;
+    margin-left: 1em;
+    letter-spacing: -1px;
+    font-weight: 700; }
+    navbar .site-title a {
+      color: inherit;
+      border: none; }

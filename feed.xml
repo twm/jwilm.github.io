@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Blog Name</title>
+  <subtitle>Blog subtitle</subtitle>
+  <id>http://blog.url.com/</id>
+  <link href="http://blog.url.com/"/>
+  <link href="http://blog.url.com/feed.xml" rel="self"/>
+  <updated>2016-01-07T16:00:00-08:00</updated>
+  <author>
+    <name>Blog Author</name>
+  </author>
+  <entry>
+    <title>YouCompleteMe, Rust</title>
+    <link rel="alternate" href="http://blog.url.com/youcompleteme-rust/"/>
+    <id>http://blog.url.com/youcompleteme-rust/</id>
+    <published>2016-01-07T16:00:00-08:00</published>
+    <updated>2016-04-16T15:18:09-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;&lt;a href="https://github.com/valloric/YouCompleteMe"&gt;YouCompleteMe&lt;/a&gt; now supports Rust auto-completion and GoTo. Rust semantic
+analysis is provided by &lt;a href="https://github.com/jwilm/racerd"&gt;racerd&lt;/a&gt;, a JSON/HTTP server powered by &lt;a href="https://github.com/phildawes/racer"&gt;racer&lt;/a&gt;. YCM
+with Rust provides a superior experience to current vim-racer, emacs-racer, and
+other racer-based plugins.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="http://img.svbtle.com/xtrifoeons6nfa.gif"&gt;&lt;img alt="ycm_rust_launch.gif" src="https://d23f6h5jpj26xu.cloudfront.net/xtrifoeons6nfa_small.gif" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1&gt;YouCompleteMe&lt;/h1&gt;
+
+&lt;p&gt;For the uninitiated, &lt;a href="https://github.com/valloric/YouCompleteMe"&gt;YouCompleteMe&lt;/a&gt; is a fast, fuzzy, as-you-type
+code-completion engine built originally for Vim. YCM runs on Mac, Linux, and
+Windows and includes completion engines for C/C++, ObjC, Python, C#, Go,
+TypeScript, JavaScript, and now Rust. YCM additionally provides an identifier
+based completion engine to supplement semantic completers and provide
+completions for languages without native support.&lt;/p&gt;
+
+&lt;p&gt;The YCM core, &lt;a href="https://github.com/valloric/ycmd"&gt;ycmd&lt;/a&gt;, exists &lt;a href="https://val.markovic.io/articles/youcompleteme-as-a-server"&gt;as an independent project&lt;/a&gt;;
+clients for &lt;a href="https://github.com/valloric/YouCompleteMe"&gt;Vim&lt;/a&gt;, &lt;a href="https://github.com/abingham/emacs-ycmd"&gt;Emacs&lt;/a&gt;, and &lt;a href="https://atom.io/packages/you-complete-me"&gt;Atom&lt;/a&gt;
+all share the same infrastructure. The complete list of known clients is found
+in &lt;a href="https://github.com/Valloric/ycmd#known-ycmd-clients"&gt;the ycmd README&lt;/a&gt;. If a ycmd client does not exist for
+&lt;code&gt;$EDITOR&lt;/code&gt;, integrating with ycmd is as simple as integrating with a REST API.
+The &lt;a href="https://github.com/Valloric/ycmd/tree/master/examples"&gt;ycmd example client&lt;/a&gt; shows how it&amp;rsquo;s done.&lt;/p&gt;
+
+&lt;h1&gt;Rust&lt;/h1&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href="http://rust-lang.org"&gt;Rust&lt;/a&gt; is a systems programming language that runs
+blazingly fast, prevents segfaults, and guarantees thread safety. &lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Support for Rust is now available in YCM. The result is a powerful development
+environment providing completions and GoTo in your favorite editor. Examples
+below assume your editor is Vim. For other editors, please reference their YCM
+client.&lt;/p&gt;
+
+&lt;h2&gt;Completions&lt;/h2&gt;
+
+&lt;p&gt;Semantic completions in YCM are provided when a &lt;em&gt;semantic trigger&lt;/em&gt;, &lt;code&gt;.&lt;/code&gt;, or
+&lt;code&gt;::&lt;/code&gt;, is detected. In the provided example, you can see a completion menu
+immediately appear after typing &lt;code&gt;std::&lt;/code&gt;, &lt;code&gt;std::collections::&lt;/code&gt;, and &lt;code&gt;Vec::&lt;/code&gt;; no
+hotkey was necessary. As you continue to type, YCM fuzzy-filters available
+completions using your input to narrow the completion list.&lt;/p&gt;
+
+&lt;h2&gt;GoTo&lt;/h2&gt;
+
+&lt;p&gt;The YCM Rust Completer provides the &lt;code&gt;GoTo&lt;/code&gt; subcommand. &lt;code&gt;GoTo&lt;/code&gt; attempts to find
+where the identifier under the cursor is defined. If successful, a buffer is
+opened for the file containing the definition, and the cursor is placed on the
+definition.&lt;/p&gt;
+
+&lt;p&gt;The complete GoTo command in Vim is &lt;code&gt;:YcmCompleter GoTo&lt;/code&gt;, and I highly recommend
+mapping it to some hotkey. Example:&lt;/p&gt;
+&lt;pre class="highlight viml"&gt;&lt;code&gt;nnoremap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;Leader&lt;span class="p"&gt;&amp;gt;]&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;YcmCompleter GoTo&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;YCM Configuration (Vim)&lt;/h2&gt;
+
+&lt;p&gt;Rust completions and GoTo from the current crate and its dependencies will be
+available without any additional configuration. For completions in the standard
+library, a single variable &lt;code&gt;g:ycm_rust_src_path&lt;/code&gt; must be defined in your .vimrc.&lt;/p&gt;
+&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="c"&gt;" Naturally, this needs to be set to wherever your rust&lt;/span&gt;
+&lt;span class="c"&gt;" source tree resides.&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:ycm_rust_src_path&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'/usr/local/rust/rustc-1.5.0/src'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1&gt;Differences from vim-racer, emacs-racer, and others&lt;/h1&gt;
+
+&lt;p&gt;Since &lt;code&gt;racerd&lt;/code&gt;, and subsequently YCM&amp;rsquo;s Rust Completer are powered by &lt;code&gt;racer&lt;/code&gt;,
+the same code-completion and find-definition features are available. The
+addition of YCM to this equation provides a &lt;em&gt;massive&lt;/em&gt; quality-of-life
+improvement over the existing plugins:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;No hotkey required for completions&lt;/li&gt;
+&lt;li&gt;Fuzzy search of available completions&lt;/li&gt;
+&lt;li&gt;Identifier-based completion engine to supplement rust completions&lt;/li&gt;
+&lt;li&gt;Performance: Completions are cached within YCM, and latency with racerd is
+typically only a few ms once files are cached from disk. This is discussed
+more in the racerd section following.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1&gt;racerd&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/racerd"&gt;racerd&lt;/a&gt; is suitable for providing completions and find-definition support for
+&lt;em&gt;any&lt;/em&gt; Rust IDE and is not constrained to YCM. It provides several benefits over
+integrating racer via the command line or with the racer &lt;code&gt;daemon&lt;/code&gt; flag.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Persistent file caching: When starting a new racer process for every
+completion, or when running racer in daemon mode, the cache is thrown out
+after each operation. Racerd keeps this cache between requests. This gives a
+nice performance boost since files only need to be read from disk once.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Support for dirty buffers: &lt;a href="https://github.com/jwilm/racerd/blob/master/docs/API.md"&gt;Racerd&amp;rsquo;s JSON API&lt;/a&gt; supports a &lt;code&gt;buffers&lt;/code&gt; field -
+a list of file paths (which need not exist) and associated contents which is
+added to the racer cache before performing a query. This feature eliminates
+the need for temporary files.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;HTTP/JSON API: Very effective method for integrating a semantic completion
+engine. Just about every language has a built-in or library for querying such
+an API, and it is extremely performant on localhost (a few ms for completing
+out of standard library). The process is long lived; there is no process
+startup overhead for each query. Racerd also has &lt;a href="https://github.com/jwilm/racerd/blob/master/docs/API.md"&gt;extensive API
+documentation&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1&gt;Giving Thanks&lt;/h1&gt;
+
+&lt;p&gt;YouCompleteMe would not be the fantastic project it is, both technically and as
+a positive open-source community, without the work of &lt;a href="https://github.com/valloric"&gt;@Valloric&lt;/a&gt; and the YCM
+team &lt;a href="https://github.com/micbou"&gt;@micbou&lt;/a&gt;, &lt;a href="https://github.com/oblitum"&gt;@oblitum&lt;/a&gt;, &lt;a href="https://github.com/vheon"&gt;@vheon&lt;/a&gt;, and &lt;a href="https://github.com/puremourning"&gt;@puremourning&lt;/a&gt;. &lt;a href="https://github.com/jwilm/racerd"&gt;racerd&lt;/a&gt; and
+YCM&amp;rsquo;s Rust completer would not have been possible without &lt;a href="https://github.com/phildawes"&gt;@phildawes&lt;/a&gt;&amp;rsquo;
+fantastic &lt;a href="https://github.com/phildawes/racer"&gt;racer&lt;/a&gt; library. Thanks to &lt;a href="https://github.com/birkenfeld"&gt;@birkenfeld&lt;/a&gt; for his assistance
+implementing some changes in racer to make racerd possible. Thanks to &lt;a href="https://github.com/reem"&gt;@reem&lt;/a&gt;
+whom I pestered with far too many questions in #&lt;em&gt;iron&lt;/em&gt;. Finally, thanks to the
+YCM team for reading drafts of this post.&lt;/p&gt;
+</content>
+  </entry>
+</feed>
