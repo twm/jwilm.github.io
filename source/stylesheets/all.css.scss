@@ -8,10 +8,10 @@ $break-large: 1024px;
     @media only screen and (max-width: $break-small - 1) { @content; }
   }
   @else if $media == medium-screens {
-    @media only screen and (min-width: $break-small) and (max-width: $break-large - 1) { @content; }
+    @media only screen and (min-width: $break-small) and (max-width: $break-large) { @content; }
   }
   @else if $media == wide-screens {
-    @media only screen and (min-width: $break-large) { @content; }
+    @media only screen and (min-width: $break-large + 1) { @content; }
   }
 }
 
@@ -37,7 +37,7 @@ $break-large: 1024px;
   body { font-size: 16px; }
 }
 
-$main-width: 640px;
+$main-width: 768px;
 $narrow-width: 320px;
 
 $extra-fat: 100px;
