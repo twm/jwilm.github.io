@@ -10,6 +10,8 @@
   body {
     font-size: 16px; } }
 body {
+  text-size-adjust: none;
+  -webkit-text-size-adjust: none;
   overflow-y: scroll;
   margin: 0;
   padding: 0;
@@ -41,7 +43,7 @@ body {
     text-decoration: none;
     border-bottom: 2px solid #DAEDFF; }
   body code {
-    font-family: 'Ubuntu Mono', monospace; }
+    font-family: "DejaVu Sans Mono", "Liberation Mono", Menlo, Courier, monospace; }
 
 .article-header {
   margin-top: 2em;
