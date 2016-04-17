@@ -1,11 +1,12 @@
+@import url(highlighting.css);
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700|Libre+Baskerville|Ubuntu+Mono:400,400italic,700,700italic);
 @media only screen and (max-width: 767px) {
   body {
     font-size: 14px; } }
-@media only screen and (min-width: 768px) and (max-width: 1023px) {
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
   body {
     font-size: 16px; } }
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 1025px) {
   body {
     font-size: 16px; } }
 body {
@@ -53,58 +54,58 @@ body {
     @media only screen and (max-width: 767px) {
       #main p, #main ul, #main ol {
         max-width: 92vw; } }
-    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
       #main p, #main ul, #main ol {
         max-width: 92vw; } }
-    @media only screen and (min-width: 1024px) {
+    @media only screen and (min-width: 1025px) {
       #main p, #main ul, #main ol {
-        max-width: 640px; } }
+        max-width: 768px; } }
   #main li {
     max-width: 94%; }
   @media only screen and (max-width: 767px) {
     #main span {
       max-width: 92vw; } }
-  @media only screen and (min-width: 768px) and (max-width: 1023px) {
+  @media only screen and (min-width: 768px) and (max-width: 1024px) {
     #main span {
       max-width: 92vw; } }
-  @media only screen and (min-width: 1024px) {
+  @media only screen and (min-width: 1025px) {
     #main span {
-      max-width: 640px; } }
+      max-width: 768px; } }
   #main img {
     display: block;
     margin: 0 auto; }
     @media only screen and (max-width: 767px) {
       #main img {
         max-width: 92vw; } }
-    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
       #main img {
         max-width: 92vw; } }
-    @media only screen and (min-width: 1024px) {
+    @media only screen and (min-width: 1025px) {
       #main img {
-        max-width: 640px; } }
+        max-width: 768px; } }
   #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
     margin-left: auto;
     margin-right: auto; }
     @media only screen and (max-width: 767px) {
       #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
         max-width: 92vw; } }
-    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
       #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
         max-width: 92vw; } }
-    @media only screen and (min-width: 1024px) {
+    @media only screen and (min-width: 1025px) {
       #main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
-        max-width: 640px; } }
+        max-width: 768px; } }
   #main p {
     margin: 1.4em auto; }
     @media only screen and (max-width: 767px) {
       #main p {
         max-width: 92vw; } }
-    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
       #main p {
         max-width: 92vw; } }
-    @media only screen and (min-width: 1024px) {
+    @media only screen and (min-width: 1025px) {
       #main p {
-        max-width: 640px; } }
+        max-width: 768px; } }
   #main blockquote {
     margin: 0 auto;
     color: #666;
@@ -112,12 +113,12 @@ body {
     @media only screen and (max-width: 767px) {
       #main blockquote {
         max-width: 92vw; } }
-    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
       #main blockquote {
         max-width: 92vw; } }
-    @media only screen and (min-width: 1024px) {
+    @media only screen and (min-width: 1025px) {
       #main blockquote {
-        max-width: 640px; } }
+        max-width: 768px; } }
     #main blockquote p {
       padding: 0 2em; }
     #main blockquote a {
@@ -130,19 +131,18 @@ body {
     #main pre code {
       overflow-x: hidden;
       line-height: 1.3em;
-      font-size: .8em;
       display: block;
       margin: 0 auto; }
       @media only screen and (max-width: 767px) {
         #main pre code {
           max-width: 92vw; } }
-      @media only screen and (min-width: 768px) and (max-width: 1023px) {
+      @media only screen and (min-width: 768px) and (max-width: 1024px) {
         #main pre code {
           max-width: 92vw; } }
-      @media only screen and (min-width: 1024px) {
+      @media only screen and (min-width: 1025px) {
         #main pre code {
-          max-width: 640px; } }
-  #main p > code {
+          max-width: 768px; } }
+  #main p > code, #main li > code {
     background-color: #f8f8f8;
     border-radius: 3px;
     border: 1px solid #eee;
@@ -153,12 +153,12 @@ body {
     @media only screen and (max-width: 767px) {
       #main .asciicast {
         max-width: 92vw; } }
-    @media only screen and (min-width: 768px) and (max-width: 1023px) {
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
       #main .asciicast {
         max-width: 92vw; } }
-    @media only screen and (min-width: 1024px) {
+    @media only screen and (min-width: 1025px) {
       #main .asciicast {
-        max-width: 640px; } }
+        max-width: 768px; } }
   #main .article-info {
     margin-top: 3em; }
     #main .article-info a {

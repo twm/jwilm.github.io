@@ -27,7 +27,7 @@ other racer-based plugins.&lt;/p&gt;
 
 &lt;p&gt;&lt;a href="http://img.svbtle.com/xtrifoeons6nfa.gif"&gt;&lt;img alt="ycm_rust_launch.gif" src="https://d23f6h5jpj26xu.cloudfront.net/xtrifoeons6nfa_small.gif" /&gt;&lt;/a&gt;&lt;/p&gt;
 
-&lt;h1&gt;YouCompleteMe&lt;/h1&gt;
+&lt;h1 id="youcompleteme"&gt;YouCompleteMe&lt;/h1&gt;
 
 &lt;p&gt;For the uninitiated, &lt;a href="https://github.com/valloric/YouCompleteMe"&gt;YouCompleteMe&lt;/a&gt; is a fast, fuzzy, as-you-type
 code-completion engine built originally for Vim. YCM runs on Mac, Linux, and
@@ -43,7 +43,7 @@ in &lt;a href="https://github.com/Valloric/ycmd#known-ycmd-clients"&gt;the ycmd 
 &lt;code&gt;$EDITOR&lt;/code&gt;, integrating with ycmd is as simple as integrating with a REST API.
 The &lt;a href="https://github.com/Valloric/ycmd/tree/master/examples"&gt;ycmd example client&lt;/a&gt; shows how it&amp;rsquo;s done.&lt;/p&gt;
 
-&lt;h1&gt;Rust&lt;/h1&gt;
+&lt;h1 id="rust"&gt;Rust&lt;/h1&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;&lt;a href="http://rust-lang.org"&gt;Rust&lt;/a&gt; is a systems programming language that runs
@@ -55,7 +55,7 @@ environment providing completions and GoTo in your favorite editor. Examples
 below assume your editor is Vim. For other editors, please reference their YCM
 client.&lt;/p&gt;
 
-&lt;h2&gt;Completions&lt;/h2&gt;
+&lt;h2 id="completions"&gt;Completions&lt;/h2&gt;
 
 &lt;p&gt;Semantic completions in YCM are provided when a &lt;em&gt;semantic trigger&lt;/em&gt;, &lt;code&gt;.&lt;/code&gt;, or
 &lt;code&gt;::&lt;/code&gt;, is detected. In the provided example, you can see a completion menu
@@ -63,7 +63,7 @@ immediately appear after typing &lt;code&gt;std::&lt;/code&gt;, &lt;code&gt;std:
 hotkey was necessary. As you continue to type, YCM fuzzy-filters available
 completions using your input to narrow the completion list.&lt;/p&gt;
 
-&lt;h2&gt;GoTo&lt;/h2&gt;
+&lt;h2 id="goto"&gt;GoTo&lt;/h2&gt;
 
 &lt;p&gt;The YCM Rust Completer provides the &lt;code&gt;GoTo&lt;/code&gt; subcommand. &lt;code&gt;GoTo&lt;/code&gt; attempts to find
 where the identifier under the cursor is defined. If successful, a buffer is
@@ -75,7 +75,7 @@ mapping it to some hotkey. Example:&lt;/p&gt;
 &lt;pre class="highlight viml"&gt;&lt;code&gt;nnoremap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;Leader&lt;span class="p"&gt;&amp;gt;]&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;YcmCompleter GoTo&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2&gt;YCM Configuration (Vim)&lt;/h2&gt;
+&lt;h2 id="ycm-configuration-vim"&gt;YCM Configuration (Vim)&lt;/h2&gt;
 
 &lt;p&gt;Rust completions and GoTo from the current crate and its dependencies will be
 available without any additional configuration. For completions in the standard
@@ -85,7 +85,7 @@ library, a single variable &lt;code&gt;g:ycm_rust_src_path&lt;/code&gt; must be 
 &lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:ycm_rust_src_path&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'/usr/local/rust/rustc-1.5.0/src'&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h1&gt;Differences from vim-racer, emacs-racer, and others&lt;/h1&gt;
+&lt;h1 id="differences-from-vim-racer-emacs-racer-and-others"&gt;Differences from vim-racer, emacs-racer, and others&lt;/h1&gt;
 
 &lt;p&gt;Since &lt;code&gt;racerd&lt;/code&gt;, and subsequently YCM&amp;rsquo;s Rust Completer are powered by &lt;code&gt;racer&lt;/code&gt;,
 the same code-completion and find-definition features are available. The
@@ -101,7 +101,7 @@ typically only a few ms once files are cached from disk. This is discussed
 more in the racerd section following.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1&gt;racerd&lt;/h1&gt;
+&lt;h1 id="racerd"&gt;racerd&lt;/h1&gt;
 
 &lt;p&gt;&lt;a href="https://github.com/jwilm/racerd"&gt;racerd&lt;/a&gt; is suitable for providing completions and find-definition support for
 &lt;em&gt;any&lt;/em&gt; Rust IDE and is not constrained to YCM. It provides several benefits over
@@ -124,7 +124,7 @@ startup overhead for each query. Racerd also has &lt;a href="https://github.com/
 documentation&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h1&gt;Giving Thanks&lt;/h1&gt;
+&lt;h1 id="giving-thanks"&gt;Giving Thanks&lt;/h1&gt;
 
 &lt;p&gt;YouCompleteMe would not be the fantastic project it is, both technically and as
 a positive open-source community, without the work of &lt;a href="https://github.com/valloric"&gt;@Valloric&lt;/a&gt; and the YCM
