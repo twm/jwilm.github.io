@@ -15,7 +15,7 @@ implementation that is both ergonomic and efficient.
 READMORE
 
 Let's say we're making a library for the _example.com_ API. Each API call must
-be authenticated with a token. A token definition might look like this.
+be authenticated with a token. A token definition might look like this:
 
 ```rust
 /// Token for example.io API
@@ -47,7 +47,7 @@ let token = Token::new(&secret[..]);
 
 This implementation has a big limitation; `token` cannot outlive `secret`, and
 that means `token` can't escape this stack frame. What if `Token` just held a
-`String`? That would get rid of the lifetime parameter making Token a purely
+`String`? That would get rid of the lifetime parameter making `Token` a purely
 owned type.
 
 `Token` and its `new` function look like this after making the change.
@@ -72,7 +72,7 @@ let token = Token::new(secret_from_vault("api.example.io"))
 ```
 
 However, this has actively harmed the usability of providing a `&'str`. For
-example, this won't compile.
+example, this won't compile:
 
 ```rust
 // doesn't compile
@@ -88,8 +88,8 @@ let token = Token::new(String::from("abc123"));
 
 If `new` took a `&str` instead of a `String`, it could hide `String::from` in
 the implementation. However, passing in a `String` would become less ergonomic,
-and it would necessitate an extraneous heap allocation. Let's see what that
-looks like.
+and it would involve and additional heap allocation. Let's see what that
+looks like:
 
 ```rust
 // new function now looks like so
@@ -115,7 +115,7 @@ case of a String.
 
 The standard libary has a trait
 [Into](https://doc.rust-lang.org/std/convert/trait.Into.html) which will help
-our `new` problem. The trait definition looks like this.
+our `new` problem. The trait definition looks like this:
 
 ```rust
 pub trait Into<T> {
@@ -125,7 +125,7 @@ pub trait Into<T> {
 
 The `into` function it defines is pretty straight-forward; it consumes self (the
 thing implementing Into) and returns a `T` (note the type parameter on the trait
-definition). Here's how it's used.
+definition). Here's how it's used:
 
 ```rust
 impl Token {
@@ -163,7 +163,7 @@ The standard library has a type
 enables us to keep the ergonomics of the `Into<String>` API while also allowing
 for borrowed values like a `&str`.
 
-Here's the scary-looking definition of `Cow`.
+Here's the scary-looking definition of `Cow`:
 
 ```rust
 pub enum Cow<'a, B> where B: 'a + ToOwned + ?Sized {
@@ -174,7 +174,7 @@ pub enum Cow<'a, B> where B: 'a + ToOwned + ?Sized {
 
 Let's break that down.
 
-- `Cow<'a, B>` two generic parameters; a lifetime `'a`, and some type `B`
+- `Cow<'a, B>` has two generic parameters; a lifetime `'a`, and some type `B`
 - `B` is constrained to `'a + ToOwned + ?Sized`
     - `'a` - `B` cannot contain a lifetime that outlives `'a`
     - `+ ToOwned` - `B` must implement `ToOwned`.
@@ -221,7 +221,7 @@ let token = Token::new(Cow::Owned(secret));
 A Token can now be created with either an owned or a borrowed type, but we've
 lost the API ergonomics! `Into` can do the same thing for our `Cow<'a, str>` as
 it did for a simple `String` earlier. The final Token implementation looks like
-this.
+this:
 
 ```rust
 struct Token<'a> {
