@@ -45,7 +45,11 @@ $padding: 16px;
 
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700|Libre+Baskerville|Ubuntu+Mono:400,400italic,700,700italic);
 
+
 body {
+  text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+
   overflow-y: scroll;
   margin: 0;
   padding: 0;
@@ -96,7 +100,7 @@ body {
   }
 
   code {
-    font-family: 'Ubuntu Mono', monospace;
+    font-family: "DejaVu Sans Mono", "Liberation Mono", Menlo, Courier, monospace;
   }
 
   color: #333;
