@@ -242,8 +242,39 @@ let token = Token::new(secret_from_vault("api.example.io"));
 
 Now, a token can be created ergonomically from either a `&str` or a `String`.
 The lifetime bound on `Token` is no longer a problem for escaping stack frames
-since we can have an owned variant. It can even be sent across threads with the
-`'static` lifetime (and the owned variant).
+when created with a `String` or `&'static str`; it can even be sent across
+threads!
+
+```rust
+let raw = String::from("abc");
+let token_owned = Token::new(raw);
+let token_static = Token::new("123");
+
+thread::spawn(move || {
+    println!("token_owned: {:?}", token_owned);
+    println!("token_static: {:?}", token_static);
+}).join().unwrap();
+```
+
+Trying to send a token with a non-`'static` ref will fail.
+
+```rust
+// Make a ref with non-'static lifetime
+let raw = String::from("abc");
+let s = &raw[..];
+let token = Token::new(s);
+
+// This won't work
+thread::spawn(move || {
+    println!("token: {:?}", token);
+}).join().unwrap();
+```
+
+Indeed, the above example fails with
+
+```
+error: `raw` does not live long enough
+```
 
 If you're hungry for more examples, please check out the [PagerDuty API
 client](https://github.com/jwilm/pagerduty-rs) which uses `Cow` extensively.
