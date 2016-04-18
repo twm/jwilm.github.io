@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/stylesheets/all.css" rel="stylesheet" />
+
+    <title>
+    From &str to Cow
+    </title>
+    <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/feed.xml" />
+  </head>
+  <body>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-72217320-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+    <navbar>
+    <h1 class="site-title"><a href="//blog.jwilm.io">JOE WILM</a></h1>
+    <span class="social-links"></span>
+    </navbar>
+
+    <div id="main" role="main">
+        <div class="article-info">
+  <p class="article-date">APRIL 16, 2016</p>
+  <h2 class="article-title"><a href="/from-str-to-cow/">From &str to Cow</a></h2>
+</div>
+
+
+      <p>Some of the first Rust code I wrote was a struct with a <code>&amp;str</code> field. As you
+might imagine, the borrow checker didn&rsquo;t let me do a lot of things, and the API
+ergonomics were limited. This article aims to demonstrate the issues with having
+raw <code>&amp;str</code> references in structs, introduce some intermediate APIs that
+alleviate the ergonomics but aren&rsquo;t necessarily efficient, and end with an
+implementation that is both ergonomic and efficient.</p>
+
+<p></p>
+
+<p>Let&rsquo;s say we&rsquo;re making a library for the <em>example.com</em> API. Each API call must
+be authenticated with a token. A token definition might look like this:</p>
+<pre class="highlight rust"><code><span class="c">/// Token for example.io API</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">raw</span><span class="p">:</span> <span class="o">&amp;</span><span class="err">'</span><span class="n">a</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>And maybe there&rsquo;s an impl for creating a token given a <code>&amp;str</code>.</p>
+<pre class="highlight rust"><code><span class="k">impl</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="o">&amp;</span><span class="err">'</span><span class="n">a</span> <span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="n">Token</span> <span class="p">{</span> <span class="n">raw</span><span class="p">:</span> <span class="n">raw</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>This <code>Token</code> impl works really well for <code>&amp;&#39;static str</code>. However, what if a user
+doesn&rsquo;t want to embed their authentication secret in the binary? Maybe the
+secret is loaded from a vault at run time. We might want to write some code like
+this.</p>
+<pre class="highlight rust"><code><span class="c">/// Imagine that this function exists</span>
+<span class="k">let</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">String</span> <span class="o">=</span> <span class="nf">secret_from_vault</span><span class="p">(</span><span class="s">"api.example.io"</span><span class="p">);</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">secret</span><span class="p">[</span><span class="err">..</span><span class="p">]);</span>
+</code></pre>
+
+<p>This implementation has a big limitation; <code>token</code> cannot outlive <code>secret</code>, and
+that means <code>token</code> can&rsquo;t escape this stack frame. What if <code>Token</code> just held a
+<code>String</code>? That would get rid of the lifetime parameter making <code>Token</code> a purely
+owned type.</p>
+
+<p><code>Token</code> and its <code>new</code> function look like this after making the change.</p>
+<pre class="highlight rust"><code><span class="k">struct</span> <span class="n">Token</span> <span class="p">{</span>
+    <span class="n">raw</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Token</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Token</span> <span class="p">{</span>
+        <span class="n">Token</span> <span class="p">{</span> <span class="n">raw</span><span class="p">:</span> <span class="n">raw</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>The use case where a String is provided has been fixed.</p>
+<pre class="highlight rust"><code><span class="c">// this works now</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nf">secret_from_vault</span><span class="p">(</span><span class="s">"api.example.io"</span><span class="p">))</span>
+</code></pre>
+
+<p>However, this has actively harmed the usability of providing a <code>&amp;&#39;str</code>. For
+example, this won&rsquo;t compile:</p>
+<pre class="highlight rust"><code><span class="c">// doesn't compile</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"abc123"</span><span class="p">);</span>
+</code></pre>
+
+<p>The consumer of this API would need to manually convert that into a <code>String</code>
+first.</p>
+<pre class="highlight rust"><code><span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="s">"abc123"</span><span class="p">));</span>
+</code></pre>
+
+<p>If <code>new</code> took a <code>&amp;str</code> instead of a <code>String</code>, it could hide <code>String::from</code> in
+the implementation. However, passing in a <code>String</code> would become less ergonomic,
+and it would involve and additional heap allocation. Let&rsquo;s see what that
+looks like:</p>
+<pre class="highlight rust"><code><span class="c">// new function now looks like so</span>
+<span class="k">impl</span> <span class="n">Token</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Token</span> <span class="p">{</span>
+        <span class="nf">Token</span><span class="p">(</span><span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// &amp;str can be passed seamlessly</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"abc123"</span><span class="p">);</span>
+
+<span class="c">// Can still use a String, but it needs to be sliced, and</span>
+<span class="c">// the new fn will copy it</span>
+<span class="k">let</span> <span class="n">secret</span> <span class="o">=</span> <span class="nf">secret_from_vault</span><span class="p">(</span><span class="s">"api.example.io"</span><span class="p">);</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">secret</span><span class="p">[</span><span class="err">..</span><span class="p">]);</span> <span class="c">// inefficent!</span>
+</code></pre>
+
+<p>There is a way that <code>new</code> can accept both forms with no allocation needed in the
+case of a String.</p>
+
+<h1 id="introducing-into">Introducing Into</h1>
+
+<p>The standard libary has a trait
+<a href="https://doc.rust-lang.org/std/convert/trait.Into.html">Into</a> which will help
+our <code>new</code> problem. The trait definition looks like this:</p>
+<pre class="highlight rust"><code><span class="k">pub</span> <span class="k">trait</span> <span class="n">Into</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">into</span><span class="p">(</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">T</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>The <code>into</code> function it defines is pretty straight-forward; it consumes self (the
+thing implementing Into) and returns a <code>T</code> (note the type parameter on the trait
+definition). Here&rsquo;s how it&rsquo;s used:</p>
+<pre class="highlight rust"><code><span class="k">impl</span> <span class="n">Token</span> <span class="p">{</span>
+    <span class="c">/// Create a new token</span>
+    <span class="c">///</span>
+    <span class="c">/// Can be passed either a &amp;str or String</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="n">new</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n">S</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Token</span>
+        <span class="n">where</span> <span class="n">S</span><span class="p">:</span> <span class="n">Into</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span>
+    <span class="p">{</span>
+        <span class="n">Token</span> <span class="p">{</span> <span class="n">raw</span><span class="p">:</span> <span class="n">raw</span><span class="nf">.into</span><span class="p">()</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// &amp;str</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"abc123"</span><span class="p">);</span>
+
+<span class="c">// String</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nf">secret_from_vault</span><span class="p">(</span><span class="s">"api.example.io"</span><span class="p">));</span>
+</code></pre>
+
+<p>There&rsquo;s a lot going on here. First, the function now has a generic type
+parameter, <code>S</code>. The argument <code>raw</code> has this type. The line reading <code>where S:
+Into&lt;String&gt;</code> limits the types of <code>S</code> to <em>anything</em> that implements
+<code>Into&lt;String&gt;</code>. Since the standard library already provides <code>Into&lt;String&gt;</code> for
+<code>&amp;str</code> and for <code>String</code>, our use case is handled. <sup><a href="#1">1</a></sup></p>
+
+<p>Although the ergonomics have been greatly improved, there&rsquo;s still an issue with
+this API. Passing a <code>&amp;str</code> to <code>new</code> requires an allocation to store the value as
+a <code>String</code>.</p>
+
+<h1 id="cow-to-the-rescue">Cow to the rescue</h1>
+
+<p>The standard library has a type
+<a href="https://doc.rust-lang.org/std/borrow/enum.Cow.html"><code>std::borrow:Cow</code></a> which
+enables us to keep the ergonomics of the <code>Into&lt;String&gt;</code> API while also allowing
+for borrowed values like a <code>&amp;str</code>.</p>
+
+<p>Here&rsquo;s the scary-looking definition of <code>Cow</code>:</p>
+<pre class="highlight rust"><code><span class="k">pub</span> <span class="k">enum</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="p">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="n">where</span> <span class="n">B</span><span class="p">:</span> <span class="err">'</span><span class="n">a</span> <span class="o">+</span> <span class="n">ToOwned</span> <span class="o">+</span> <span class="err">?</span><span class="n">Sized</span> <span class="p">{</span>
+    <span class="nf">Borrowed</span><span class="p">(</span><span class="o">&amp;</span><span class="err">'</span><span class="n">a</span> <span class="n">B</span><span class="p">),</span>
+    <span class="nf">Owned</span><span class="p">(</span><span class="nn">B</span><span class="p">::</span><span class="nb">Owned</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Let&rsquo;s break that down.</p>
+
+<ul>
+<li><code>Cow&lt;&#39;a, B&gt;</code> has two generic parameters; a lifetime <code>&#39;a</code>, and some type <code>B</code></li>
+<li><code>B</code> is constrained to <code>&#39;a + ToOwned + ?Sized</code>
+
+<ul>
+<li><code>&#39;a</code> - <code>B</code> cannot contain a lifetime that outlives <code>&#39;a</code></li>
+<li><code>+ ToOwned</code> - <code>B</code> must implement <code>ToOwned</code>.</li>
+<li><code>+ ?Sized</code> - The size of B can be unknown at compile time. This isn&rsquo;t
+relevant for our use case, but it means that trait objects may be used
+with the Cow type.</li>
+</ul></li>
+<li>There&rsquo;s two variants
+
+<ul>
+<li><code>Borrowed(&amp;&#39;a B)</code> - a reference to some object of type B. The lifetime of
+this reference is the same as the lifetime bound.</li>
+<li><code>Owned(B::Owned)</code> - The <code>ToOwned</code> trait has an associated type <code>Owned</code>.
+This variant holds that type.</li>
+</ul></li>
+</ul>
+
+<p>We want to have a <code>Cow&lt;&#39;a, str&gt;</code>, which will look something like this after type
+substitution.</p>
+<pre class="highlight rust"><code><span class="k">enum</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nf">Borrowed</span><span class="p">(</span><span class="o">&amp;</span><span class="err">'</span><span class="n">a</span> <span class="nb">str</span><span class="p">),</span>
+    <span class="nf">Owned</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>In short, <code>Cow&lt;&#39;a, str&gt;</code> will be either a <code>&amp;str</code> with the lifetime <code>&#39;a</code>, or it
+will be a <code>String</code> which is not bound by that lifetime. This sounds great for
+the Token type! It will be able to hold either a <code>&amp;str</code> or a <code>String</code>.</p>
+<pre class="highlight rust"><code><span class="k">struct</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">raw</span><span class="p">:</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="n">Token</span> <span class="p">{</span> <span class="n">raw</span><span class="p">:</span> <span class="n">raw</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// Create the tokens.</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Cow</span><span class="p">::</span><span class="nf">Borrowed</span><span class="p">(</span><span class="s">"abc123"</span><span class="p">));</span>
+<span class="k">let</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">String</span> <span class="o">=</span> <span class="nf">secret_from_vault</span><span class="p">(</span><span class="s">"api.example.io"</span><span class="p">);</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Cow</span><span class="p">::</span><span class="nf">Owned</span><span class="p">(</span><span class="n">secret</span><span class="p">));</span>
+</code></pre>
+
+<p>A Token can now be created with either an owned or a borrowed type, but we&rsquo;ve
+lost the API ergonomics! <code>Into</code> can do the same thing for our <code>Cow&lt;&#39;a, str&gt;</code> as
+it did for a simple <code>String</code> earlier. The final Token implementation looks like
+this:</p>
+<pre class="highlight rust"><code><span class="k">struct</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">raw</span><span class="p">:</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="n">new</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n">S</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Token</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="o">&gt;</span>
+        <span class="n">where</span> <span class="n">S</span><span class="p">:</span> <span class="n">Into</span><span class="o">&lt;</span><span class="n">Cow</span><span class="o">&lt;</span><span class="err">'</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;&gt;</span>
+    <span class="p">{</span>
+        <span class="n">Token</span> <span class="p">{</span> <span class="n">raw</span><span class="p">:</span> <span class="n">raw</span><span class="nf">.into</span><span class="p">()</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// Create the tokens.</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"abc123"</span><span class="p">);</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nf">secret_from_vault</span><span class="p">(</span><span class="s">"api.example.io"</span><span class="p">));</span>
+</code></pre>
+
+<p>Now, a token can be created ergonomically from either a <code>&amp;str</code> or a <code>String</code>.
+The lifetime bound on <code>Token</code> is no longer a problem for escaping stack frames
+since we can have an owned variant. It can even be sent across threads with the
+<code>&#39;static</code> lifetime (and the owned variant).</p>
+
+<p>If you&rsquo;re hungry for more examples, please check out the <a href="https://github.com/jwilm/pagerduty-rs">PagerDuty API
+client</a> which uses <code>Cow</code> extensively.</p>
+
+<p>Thanks for reading!</p>
+
+<h1 id="notes">Notes</h1>
+
+<h2 id="1">1</h2>
+
+<p>If you were to go looking for the <code>Into&lt;String&gt;</code> impl for <code>&amp;str</code> and <code>String</code>,
+you wouldn&rsquo;t find it. This is because there&rsquo;s a generic implementation of Into
+for types implementing From. It&rsquo;s often said that <code>From</code> implies <code>Into</code>, and
+it&rsquo;s because of this blanket impl. The whole thing looks like this</p>
+<pre class="highlight rust"><code><span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">U</span><span class="o">&gt;</span> <span class="n">Into</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="k">for</span> <span class="n">T</span> <span class="n">where</span> <span class="n">U</span><span class="p">:</span> <span class="n">From</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">into</span><span class="p">(</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">U</span> <span class="p">{</span>
+        <span class="nn">U</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="k">self</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+    </div>
+
+    <!--
+    <aside>
+      <h2>Recent Articles</h2>
+      <ol>
+          <li><a href="/from-str-to-cow/">From &str to Cow</a>
+            <span>APRIL 16, 2016</span></li>
+          <li><a href="/youcompleteme-rust/">YouCompleteMe, Rust</a>
+            <span>JANUARY  8, 2016</span></li>
+      </ol>
+
+      <h2>Tags</h2>
+      <ol>
+          <li><a href="/tags/vim/">Vim (1)</a></li>
+          <li><a href="/tags/youcompleteme/">YouCompleteMe (1)</a></li>
+          <li><a href="/tags/rust/">Rust (2)</a></li>
+      </ol>
+
+      <h2>By Year</h2>
+      <ol>
+          <li><a href="/2016/">2016 (2)</a></li>
+      </ol>
+    </aside>
+    -->
+  </body>
+</html>
