@@ -255,8 +255,33 @@ this:</p>
 
 <p>Now, a token can be created ergonomically from either a <code>&amp;str</code> or a <code>String</code>.
 The lifetime bound on <code>Token</code> is no longer a problem for escaping stack frames
-since we can have an owned variant. It can even be sent across threads with the
-<code>&#39;static</code> lifetime (and the owned variant).</p>
+when created with a <code>String</code> or <code>&amp;&#39;static str</code>; it can even be sent across
+threads!</p>
+<pre class="highlight rust"><code><span class="k">let</span> <span class="n">raw</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="s">"abc"</span><span class="p">);</span>
+<span class="k">let</span> <span class="n">token_owned</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">raw</span><span class="p">);</span>
+<span class="k">let</span> <span class="n">token_static</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"123"</span><span class="p">);</span>
+
+<span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"token_owned: {:?}"</span><span class="p">,</span> <span class="n">token_owned</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"token_static: {:?}"</span><span class="p">,</span> <span class="n">token_static</span><span class="p">);</span>
+<span class="p">})</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+</code></pre>
+
+<p>Trying to send a token with a non-<code>&#39;static</code> ref will fail.</p>
+<pre class="highlight rust"><code><span class="c">// Make a ref with non-'static lifetime</span>
+<span class="k">let</span> <span class="n">raw</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="s">"abc"</span><span class="p">);</span>
+<span class="k">let</span> <span class="n">s</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">raw</span><span class="p">[</span><span class="err">..</span><span class="p">];</span>
+<span class="k">let</span> <span class="n">token</span> <span class="o">=</span> <span class="nn">Token</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+
+<span class="c">// This won't work</span>
+<span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"token: {:?}"</span><span class="p">,</span> <span class="n">token</span><span class="p">);</span>
+<span class="p">})</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+</code></pre>
+
+<p>Indeed, the above example fails with</p>
+<pre class="highlight plaintext"><code>error: `raw` does not live long enough
+</code></pre>
 
 <p>If you&rsquo;re hungry for more examples, please check out the <a href="https://github.com/jwilm/pagerduty-rs">PagerDuty API
 client</a> which uses <code>Cow</code> extensively.</p>

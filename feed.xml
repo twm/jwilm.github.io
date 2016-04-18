@@ -14,7 +14,7 @@
     <link rel="alternate" href="http://blog.url.com/from-str-to-cow/"/>
     <id>http://blog.url.com/from-str-to-cow/</id>
     <published>2016-04-15T17:00:00-07:00</published>
-    <updated>2016-04-18T07:34:07-07:00</updated>
+    <updated>2016-04-18T08:46:40-07:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -236,8 +236,33 @@ this:&lt;/p&gt;
 
 &lt;p&gt;Now, a token can be created ergonomically from either a &lt;code&gt;&amp;amp;str&lt;/code&gt; or a &lt;code&gt;String&lt;/code&gt;.
 The lifetime bound on &lt;code&gt;Token&lt;/code&gt; is no longer a problem for escaping stack frames
-since we can have an owned variant. It can even be sent across threads with the
-&lt;code&gt;&amp;#39;static&lt;/code&gt; lifetime (and the owned variant).&lt;/p&gt;
+when created with a &lt;code&gt;String&lt;/code&gt; or &lt;code&gt;&amp;amp;&amp;#39;static str&lt;/code&gt;; it can even be sent across
+threads!&lt;/p&gt;
+&lt;pre class="highlight rust"&gt;&lt;code&gt;&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="n"&gt;raw&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nn"&gt;String&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;from&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"abc"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="n"&gt;token_owned&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nn"&gt;Token&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="n"&gt;token_static&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nn"&gt;Token&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"123"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="nn"&gt;thread&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;spawn&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;move&lt;/span&gt; &lt;span class="p"&gt;||&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nd"&gt;println!&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"token_owned: {:?}"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;token_owned&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nd"&gt;println!&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"token_static: {:?}"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;token_static&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;})&lt;/span&gt;&lt;span class="nf"&gt;.join&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="nf"&gt;.unwrap&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Trying to send a token with a non-&lt;code&gt;&amp;#39;static&lt;/code&gt; ref will fail.&lt;/p&gt;
+&lt;pre class="highlight rust"&gt;&lt;code&gt;&lt;span class="c"&gt;// Make a ref with non-'static lifetime&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="n"&gt;raw&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nn"&gt;String&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;from&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"abc"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;raw&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;..&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nn"&gt;Token&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c"&gt;// This won't work&lt;/span&gt;
+&lt;span class="nn"&gt;thread&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;spawn&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;move&lt;/span&gt; &lt;span class="p"&gt;||&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nd"&gt;println!&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"token: {:?}"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;})&lt;/span&gt;&lt;span class="nf"&gt;.join&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="nf"&gt;.unwrap&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Indeed, the above example fails with&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;error: `raw` does not live long enough
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;If you&amp;rsquo;re hungry for more examples, please check out the &lt;a href="https://github.com/jwilm/pagerduty-rs"&gt;PagerDuty API
 client&lt;/a&gt; which uses &lt;code&gt;Cow&lt;/code&gt; extensively.&lt;/p&gt;
