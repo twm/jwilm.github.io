@@ -175,7 +175,7 @@ Let's break that down.
 
 - `Cow<'a, B>` has two generic parameters; a lifetime `'a`, and some type `B`
 - `B` is constrained to `'a + ToOwned + ?Sized`
-    - `'a` - `B` cannot contain a lifetime that outlives `'a`
+    - `'a` - `B` cannot contain a lifetime shorter than `'a`
     - `+ ToOwned` - `B` must implement `ToOwned`.
     - `+ ?Sized` - The size of B can be unknown at compile time. This isn't
         relevant for our use case, but it means that trait objects may be used
