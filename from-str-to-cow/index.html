@@ -189,7 +189,7 @@ for borrowed values like a <code>&amp;str</code>.</p>
 <li><code>B</code> is constrained to <code>&#39;a + ToOwned + ?Sized</code>
 
 <ul>
-<li><code>&#39;a</code> - <code>B</code> cannot contain a lifetime that outlives <code>&#39;a</code></li>
+<li><code>&#39;a</code> - <code>B</code> cannot contain a lifetime shorter than <code>&#39;a</code></li>
 <li><code>+ ToOwned</code> - <code>B</code> must implement <code>ToOwned</code>.</li>
 <li><code>+ ?Sized</code> - The size of B can be unknown at compile time. This isn&rsquo;t
 relevant for our use case, but it means that trait objects may be used
