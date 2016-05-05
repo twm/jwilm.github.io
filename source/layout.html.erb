@@ -7,13 +7,11 @@
 
     <%= stylesheet_link_tag 'all' %>
 
-    <title>
-    <%= if current_article
-          current_article.title
-        else
-         "Joe Wilm's Blog"
+    <%= if current_page.data.description
+            "<meta name=\"description\" content=\"#{current_page.data.description}\" />"
         end %>
-    </title>
+
+    <title><%= if current_article then current_article.title else "Joe Wilm's Blog" end %></title>
     <%= feed_tag :atom, "#{blog.options.prefix.to_s}/feed.xml", title: "Atom Feed" %>
   </head>
   <body>

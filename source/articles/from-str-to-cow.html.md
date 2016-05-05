@@ -2,6 +2,7 @@
 title: From &str to Cow
 date: 2016-04-16
 tags: Rust
+description: A guide to using Rust's std::borrow::Cow
 ---
 
 Some of the first Rust code I wrote was a struct with a `&str` field. As you

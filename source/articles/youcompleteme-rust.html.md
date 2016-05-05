@@ -2,6 +2,7 @@
 title: YouCompleteMe, Rust
 date: 2016-01-08
 tags: Vim, YouCompleteMe, Rust
+description: YouCompleteMe now supports completion and GoTo for The Rust Programming Language using Racer in Vim, Emacs, Sublime Text, and other editors.
 ---
 
 [YouCompleteMe][] now supports Rust auto-completion and GoTo. Rust semantic
