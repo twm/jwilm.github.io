@@ -9,7 +9,7 @@ published: false
 Alacritty is a new, blazing fast terminal emulator. It's written in Rust and
 uses OpenGL for rendering to be the fastest terminal emulator available. Try it
 today! Alacritty is [available on GitHub][Alacritty] in source form. Once
-Alacritty reaches an alpha level of readiness, precomiled binaries will be
+Alacritty reaches an alpha level of readiness, precompiled binaries will be
 provided for supported operating systems.
 
 <img width="743" alt="Alacritty Screenshot" src="https://cloud.githubusercontent.com/assets/4285147/21690874/19037262-d32b-11e6-9c18-706b1f979eb7.png">
@@ -23,7 +23,7 @@ Alacritty source tree._
 # Alacritty
 
 The rest of this post discusses what Alacritty is, why it was built, who it's
-targeted at, and some architecture decisions that have enabled its unparalleled
+targeted at, and some architectural decisions that have enabled its unparalleled
 performance. I'll be giving a technical talk at the January 2017 [Rust Meetup in
 SF] if you want to learn more.
 
@@ -69,14 +69,14 @@ Alacritty's font rendering is good. Native font rasterization libraries are used
 on each platform. Sub-pixel anti-aliasing is supported on both macOS and Linux.
 
 macOS and Linux are supported in this pre-alpha release. Windows is not yet part
-of the list, but the initial offering demonstrates making a cross-platfrom
+of the list, but the initial offering demonstrates making a cross-platform
 terminal emulator is possible.
 
 Being a pre-alpha release, there is still pending work in key areas. Less common
 applications have rendering issues. A small subset of systems have performance
 issues with the OpenGL renderer. Font rendering on macOS is not as good as the
 competition. Wayland is not natively supported. Fallback fonts are not
-supported. Fullscreen mode is not supported.
+supported. Full-screen mode is not supported.
 
 Such issues will be resolved prior to a 1.0 release. Many of them will be
 resolved long before then.
@@ -212,7 +212,7 @@ Here's a quick run-down of the new libraries:
 - [font]: Cross-platform font rasterization library
 - [utf8parse]: A table-driven UTF-8 parser
 - [vte]: A table-driven terminal protocol parser
-- [ffi-util]: Utilities for simpifying wrapping FFI types. This project is
+- [ffi-util]: Utilities for simplifying wrapping FFI types. This project is
   from [@sfackler]'s [rust-openssl] that I've put into a module
   for wrapping `fontconfig` C types.
 
