@@ -27,17 +27,17 @@ body {
     margin-left: auto;
     margin-right: auto; }
   body h1 {
-    font-size: 1.6em; }
+    font-size: 1.7em; }
   body h2 {
     font-size: 1.5em; }
   body h3 {
-    font-size: 1.4em; }
-  body h4 {
     font-size: 1.3em; }
-  body h5 {
+  body h4 {
     font-size: 1.2em; }
-  body h6 {
+  body h5 {
     font-size: 1.1em; }
+  body h6 {
+    font-size: 1em; }
   body a {
     color: #333;
     text-decoration: none;
@@ -144,7 +144,7 @@ body {
       @media only screen and (min-width: 1025px) {
         #main pre code {
           max-width: 768px; } }
-  #main p > code, #main li > code {
+  #main p > code, #main li > code, #main a > code {
     background-color: #f8f8f8;
     border-radius: 3px;
     border: 1px solid #eee;

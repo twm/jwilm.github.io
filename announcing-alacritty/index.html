@@ -1,0 +1,337 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/stylesheets/all.css" rel="stylesheet" />
+
+    <meta name="description" content="Initial source-only release of Alacritty" />
+
+    <title>Announcing Alacritty, a GPU-accelerated terminal emulator</title>
+    <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/feed.xml" />
+  </head>
+  <body>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-72217320-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+    <navbar>
+    <h1 class="site-title"><a href="//blog.jwilm.io">JOE WILM</a></h1>
+    <span class="social-links"></span>
+    </navbar>
+
+    <div id="main" role="main">
+        <div class="article-info">
+  <p class="article-date">JANUARY  6, 2017</p>
+  <h2 class="article-title"><a href="/announcing-alacritty/">Announcing Alacritty, a GPU-accelerated terminal emulator</a></h2>
+</div>
+
+
+      <p><a href="https://github.com/jwilm/alacritty">Alacritty</a> is a blazing fast, GPU accelerated terminal emulator. It&rsquo;s written
+in Rust and uses OpenGL for rendering to be the fastest terminal emulator
+available. <a href="https://github.com/jwilm/alacritty">Alacritty</a> is available on GitHub in source form.</p>
+
+<p><img width="743" alt="Alacritty Screenshot" src="https://cloud.githubusercontent.com/assets/4285147/21690874/19037262-d32b-11e6-9c18-706b1f979eb7.png"></p>
+
+<p></p>
+
+<p align="center">
+  <em>Alacritty running vim inside tmux</em>
+</p>
+
+<h1 id="alacritty">Alacritty</h1>
+
+<p>The rest of this post discusses what <a href="https://github.com/jwilm/alacritty">Alacritty</a> is, why it was built, who it&rsquo;s
+targeted at, and some architectural decisions that have enabled its unparalleled
+performance. I&rsquo;ll be giving a technical talk at the January 2017 <a href="https://www.meetup.com/Rust-Bay-Area/events/236668916/">Rust Meetup in
+SF</a> if you want to learn more.</p>
+
+<h2 id="about-the-project">About the project</h2>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a> is the result of frustration with existing terminal emulators.
+Using <code>vim</code> inside <code>tmux</code> in many terminals was a particularly bad experience.
+None of them were ever quite fast enough. Even so, Linux does have some decent
+alternatives. For example, <code>urxvt</code> and <code>st</code> give good experiences. The major
+downside with those options is difficulty of configuration and inability to run
+on non-X11 platforms. The options for macOS are particularly slow&ndash;especially
+with a full-screen terminal on a 4k monitor. None of these terminals are
+cross-platform&ndash;they are usually married to the windowing and font rendering
+APIs of their native platform.</p>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a> aims to address these issues. The project&rsquo;s architecture and features
+are guided by a set of values:</p>
+
+<ol>
+<li><strong>Correctness:</strong> Alacritty should be able to properly render modern terminal
+applications like <code>tmux</code> and <code>vim</code>. Glyphs should be rendered properly, and
+the proper glyphs should be displayed.</li>
+<li><strong>Performance:</strong> Alacritty should be the fastest terminal emulator available
+anywhere.</li>
+<li><strong>Appearance:</strong> Alacritty should have beautiful font rendering and look
+fantastic on all supported platforms.</li>
+<li><strong>Simplicity:</strong> Alacritty should be conservative about which features it
+offers. As we&rsquo;ve learned from past terminal emulators, it&rsquo;s far too easy to
+become bloated. <code>st</code> taught us that it doesn&rsquo;t need to be that way. Features
+like GUI-based configuration, tabs and scrollback are unnecessary. The latter
+features are better provided by a terminal multiplexer like <code>tmux</code>.</li>
+<li><strong>Portability:</strong> Alacritty should support major operating systems including
+Linux, macOS, and Windows.</li>
+</ol>
+
+<h2 id="initial-features">Initial Features</h2>
+
+<p>Many programs work correctly and without issue. <code>vim</code>, <code>tmux</code>, <code>htop</code>, various
+pagers and many other full-screen applications are rendered properly.</p>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a> is incredibly fast. Compare <code>find /usr</code> or equivalent with
+your favorite terminal emulator. Keep in mind that command will be faster the
+second time it&rsquo;s run due to OS caching. Alacritty&rsquo;s performance scales well with
+screen size. Running at larger resolutions will tip the scale further in
+Alacritty&rsquo;s favor.</p>
+
+<p>Alacritty&rsquo;s font rendering is great. Native font rasterization libraries are
+used on each platform, and sub-pixel anti-aliasing is supported on both macOS
+and Linux.</p>
+
+<p>macOS and Linux are supported in this pre-alpha release. Windows is not yet part
+of the list, but the initial offering demonstrates making a cross-platform
+terminal emulator is possible.</p>
+
+<p>Being a pre-alpha release, there is still pending work in key areas</p>
+
+<ul>
+<li>Less common applications have rendering issues</li>
+<li>A small subset of systems have performance issues with the OpenGL renderer</li>
+<li>Font rendering on macOS is not as good as the competition</li>
+<li>Wayland is not natively supported</li>
+<li>Fallback fonts are not supported</li>
+<li>Full-screen mode is not supported on Linux</li>
+</ul>
+
+<p>Such issues will be resolved prior to a 1.0 release. Many of them will be
+resolved far earlier.</p>
+
+<h1 id="what-makes-alacritty-fast">What makes Alacritty fast</h1>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a>&rsquo;s biggest claim is that it&rsquo;s the fastest terminal emulator
+available.  If there&rsquo;s a case where it&rsquo;s not, then it&rsquo;s either a bug in
+Alacritty or a misconfigured system. Alacritty is fast for two reasons&ndash;the
+OpenGL renderer and the high throughput parser.</p>
+
+<h2 id="opengl-rendering">OpenGL Rendering</h2>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a>&rsquo;s renderer is capable of doing ~500 FPS with a large screen
+full of text. This is made possible by efficient OpenGL usage. State changes are
+minimized as much as possible. Glyphs are rasterized only once and stored in a
+texture atlas. Instance data for glyphs is uploaded once per frame, and the
+screen is rendered in only two draw calls.</p>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a> isn&rsquo;t concerned with trying to only redraw what&rsquo;s necessary. The
+entire screen is redrawn each frame because it&rsquo;s so cheap.</p>
+
+<p>Nominally, Alacritty will draw a new frame whenever the terminal state changes,
+and only when the state changes. Alacritty will simply sit idle when there&rsquo;s no
+new data from the pseudoterminal or input events from the users. This helps
+significantly with battery life.</p>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a> is very good at processing huge amounts of text. Say that a user
+wants to <code>cat 1gb_file.txt</code>. There&rsquo;s a lot of work for the parser to do. If
+Alacritty were drawing frames constantly on every change, it would take a long
+time to finish parsing and rendering the contents. Thankfully, V-Sync can help
+here.</p>
+
+<p>V-Sync limits the frames drawn by Alacritty up to the monitor&rsquo;s refresh
+rate. 60Hz is a typical value here. Using this number, there are 16.7ms
+available per frame. 2ms of that budget is occupied by the renderer, and the
+remaining 14.7ms are available to the parser to process that huge stream of
+text. Any text that is added to the terminal and scrolled past between frames
+will never be drawn. This is a <strong>huge</strong> performance win! The parser can process
+many MBs of data between frames, and the user will still see text drawn very
+smoothly.</p>
+
+<h2 id="the-parser">The Parser</h2>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a>&rsquo;s performance is enhanced by having a good parser. Rust helped
+significantly with this by enabling us to write small testable components and
+combine them without overhead.</p>
+
+<h3 id="zero-cost-abstractions">Zero-cost abstractions</h3>
+
+<p>Rust&rsquo;s zero-cost abstractions enable building nicely abstracted components and
+later combining them as if they were hand-written as one initially.</p>
+
+<p>The parser has an <code>advance()</code> method which advances the state and sometimes
+dispatches actions to the generic <code>Perform</code> argument. Here&rsquo;s the signature:</p>
+<pre class="highlight rust"><code><span class="k">pub</span> <span class="k">fn</span> <span class="n">advance</span><span class="o">&lt;</span><span class="n">P</span><span class="p">:</span> <span class="n">Perform</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">performer</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">P</span><span class="p">,</span> <span class="n">byte</span><span class="p">:</span> <span class="nb">u8</span><span class="p">);</span>
+</code></pre>
+
+<p>Whenever a byte arrives from the pseudoterminal, it is passed to this advance
+method. Some bytes will cause state to accumulate in the parser; other bytes
+will trigger an action. Actions might be something like printing a character to
+the screen or executing an escape sequence. These actions are defined on a
+<code>Perform</code> trait which is passed to <code>advance()</code>. For example, here&rsquo;s the first
+couple of methods on the trait:</p>
+<pre class="highlight rust"><code><span class="c">/// Performs actions requested by the Parser</span>
+<span class="k">pub</span> <span class="k">trait</span> <span class="n">Perform</span> <span class="p">{</span>
+    <span class="c">/// Draw a character to the screen</span>
+    <span class="k">fn</span> <span class="nf">print</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="nb">char</span><span class="p">);</span>
+
+    <span class="c">/// Execute a C0 or C1 control function</span>
+    <span class="k">fn</span> <span class="nf">execute</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">byte</span><span class="p">:</span> <span class="nb">u8</span><span class="p">);</span>
+
+    <span class="c">// ..</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>To see how this turns into a zero-cost abstraction, let&rsquo;s look at where the
+<code>Perform</code> methods are actually called:</p>
+<pre class="highlight rust"><code><span class="k">match</span> <span class="n">action</span> <span class="p">{</span>
+    <span class="nn">Action</span><span class="p">::</span><span class="n">Print</span> <span class="k">=&gt;</span> <span class="n">performer</span><span class="nf">.print</span><span class="p">(</span><span class="n">byte</span> <span class="k">as</span> <span class="nb">char</span><span class="p">),</span>
+    <span class="nn">Action</span><span class="p">::</span><span class="n">Execute</span> <span class="k">=&gt;</span> <span class="n">performer</span><span class="nf">.execute</span><span class="p">(</span><span class="n">byte</span><span class="p">),</span>
+    <span class="c">// ..</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>Assuming the concrete <code>Perform</code> type requests <code>#[inline]</code> on these methods, they
+will likely be inlined at the call site here and avoid function call overhead.</p>
+
+<p>This same pattern is used for multiple layers of abstraction. <a href="https://github.com/jwilm/alacritty">Alacritty</a>&rsquo;s
+<code>vte::Perform</code> impl actually delegates to an <code>ansi::Handler</code> type for actions
+which requires additional parsing (eg. <code>csi_dispatch()</code>).  The result is that we
+get nice abstractions for things like <code>vte::Perform</code> and <code>ansi::Handler</code>, and
+the parsing code compiles into what looks like a big hand-written state machine.</p>
+
+<h3 id="table-driven-parsing">Table-driven parsing</h3>
+
+<p>Both the <a href="https://docs.rs/utf8parse">utf8parse</a> and <a href="https://docs.rs/vte">vte</a> crates that were written for <a href="https://github.com/jwilm/alacritty">Alacritty</a> use
+table-driven parsers. The cool thing about these is that they have <em>very</em> little
+branching; <a href="https://docs.rs/utf8parse">utf8parse</a> only has <a href="https://github.com/jwilm/vte/blob/b016827f471041320996f3273b4e3058501d7edf/utf8parse/src/lib.rs#L61">one branch</a> in the entire
+library!</p>
+
+<p>The transition tables for both <code>vte</code> and <code>utf8parse</code> are written using a
+procedural macro. The macro translates a <a href="https://github.com/jwilm/vte/blob/master/src/table.rs.in">high-level definition</a> of the state
+machine transitions to <a href="https://github.com/jwilm/vte/blob/master/src/table.rs">low-level lookup tables</a>. That is, the state machine can
+be described like this:</p>
+<pre class="highlight rust"><code><span class="c">// Transition tables description. Much was omitted for brevity.</span>
+<span class="k">pub</span> <span class="k">static</span> <span class="n">STATE_CHANGE</span><span class="p">:</span> <span class="p">[[</span><span class="nb">u8</span><span class="p">;</span> <span class="mi">256</span><span class="p">];</span> <span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="nd">vt_state_table!</span> <span class="p">{</span>
+    <span class="nn">State</span><span class="p">::</span><span class="n">Anywhere</span> <span class="k">=&gt;</span> <span class="p">{</span>
+        <span class="mi">0x80</span>...<span class="mi">0x8f</span> <span class="k">=&gt;</span> <span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="n">Execute</span><span class="p">,</span> <span class="nn">State</span><span class="p">::</span><span class="n">Ground</span><span class="p">),</span>
+        <span class="mi">0x9b</span>        <span class="k">=&gt;</span> <span class="nn">State</span><span class="p">::</span><span class="n">CsiEntry</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="nn">State</span><span class="p">::</span><span class="n">Ground</span> <span class="k">=&gt;</span> <span class="p">{</span>
+        <span class="mi">0x00</span>...<span class="mi">0x17</span> <span class="k">=&gt;</span> <span class="nn">Action</span><span class="p">::</span><span class="n">Execute</span><span class="p">,</span>
+        <span class="mi">0x20</span>...<span class="mi">0x7f</span> <span class="k">=&gt;</span> <span class="nn">Action</span><span class="p">::</span><span class="n">Print</span><span class="p">,</span>
+        <span class="mi">0xf0</span>...<span class="mi">0xf4</span> <span class="k">=&gt;</span> <span class="p">(</span><span class="nn">State</span><span class="p">::</span><span class="n">Utf8</span><span class="p">,</span> <span class="nn">Action</span><span class="p">::</span><span class="n">BeginUtf8</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="nn">State</span><span class="p">::</span><span class="n">Escape</span> <span class="k">=&gt;</span> <span class="p">{</span>
+        <span class="mi">0x00</span>...<span class="mi">0x17</span> <span class="k">=&gt;</span> <span class="nn">Action</span><span class="p">::</span><span class="n">Execute</span><span class="p">,</span>
+        <span class="mi">0x30</span>...<span class="mi">0x4f</span> <span class="k">=&gt;</span> <span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="n">EscDispatch</span><span class="p">,</span> <span class="nn">State</span><span class="p">::</span><span class="n">Ground</span><span class="p">),</span>
+        <span class="mi">0x58</span>        <span class="k">=&gt;</span> <span class="nn">State</span><span class="p">::</span><span class="n">SosPmApcString</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>The output of the procedural macro is the transition tables:</p>
+<pre class="highlight rust"><code><span class="c">// Transition tables</span>
+<span class="k">pub</span> <span class="k">static</span> <span class="n">STATE_CHANGE</span><span class="p">:</span> <span class="p">[[</span><span class="nb">u8</span><span class="p">;</span> <span class="mi">256</span><span class="p">];</span> <span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span>
+        <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span>
+        <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span>
+        <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">92u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">92u8</span><span class="p">,</span> <span class="mi">10u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span> <span class="mi">0u8</span><span class="p">,</span>
+        <span class="c">// ..</span>
+    <span class="p">],</span>
+    <span class="c">// ..</span>
+<span class="p">];</span>
+</code></pre>
+
+<p>Whenever a byte arrives, the parser looks up the table for the <em>current</em> state
+and indexes with that byte. The value returned contains the <em>next</em> state and any
+action required to make that transition. This process doesn&rsquo;t requires
+branching&ndash;it&rsquo;s a simple, fast lookup.</p>
+
+<h1 id="new-libraries">New libraries</h1>
+
+<p>Developing <a href="https://github.com/jwilm/alacritty">Alacritty</a> required several pieces of library infrastructure which
+were not available. A non-GPL licensed cross-platform clipboard library, a <code>vte</code>
+parser, cross-platform font rasterization and <code>fontconfig</code> bindings were all
+needed to build this project. <a href="https://docs.rs/vte">vte</a> and <a href="https://docs.rs/utf8parse">utf8parse</a> have been published on
+<a href="https://crates.io">crates.io</a>. The remaining libraries are still in <a href="https://github.com/jwilm/alacritty">Alacritty</a>&rsquo;s source tree and
+will be published independently at some point.</p>
+
+<p>Here&rsquo;s a quick run-down of the new libraries:</p>
+
+<ul>
+<li><a href="https://github.com/jwilm/alacritty/tree/master/copypasta">copypasta</a>: Cross-platform clipboard access library</li>
+<li><a href="https://github.com/jwilm/alacritty/tree/master/font">font</a>: Cross-platform font rasterization library</li>
+<li><a href="https://docs.rs/utf8parse">utf8parse</a>: A table-driven UTF-8 parser</li>
+<li><a href="https://docs.rs/vte">vte</a>: A table-driven terminal protocol parser</li>
+<li><a href="https://github.com/jwilm/alacritty/tree/master/ffi-util">ffi-util</a>: Utilities for simplifying wrapping FFI types. This project is
+from <a href="https://github.com/sfackler">@sfackler</a>&rsquo;s <a href="https://github.com/sfackler/rust-openssl">rust-openssl</a> that I&rsquo;ve put into a module
+for wrapping <code>fontconfig</code> C types.</li>
+</ul>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a> is a very fast and usable terminal emulator. Although this is a
+pre-alpha release, it works well enough for many developers to be used as a
+daily driver. I&rsquo;ve personally been using it as my primary terminal for a few
+months now.</p>
+
+<p>For those wanting to learn more about the project, I&rsquo;ll be giving a talk about
+Alacritty at the upcoming <a href="https://www.meetup.com/Rust-Bay-Area/events/236668916/">Rust Meetup in SF</a> on January 19, 2017. I&rsquo;m also
+planning some more technical blog posts about various subsystems of Alacritty.</p>
+
+<p><a href="https://github.com/jwilm/alacritty">Alacritty</a>&rsquo;s source is available on GitHub. Try it out for yourself!</p>
+
+<!--
+Other stuff that would be fun to talk about:
+
+- The grid container and its index types
+- Texture atlases
+- Config loading
+- Ref tests
+- VTE state table definitions
+
+-->
+
+    </div>
+
+    <!--
+    <aside>
+      <h2>Recent Articles</h2>
+      <ol>
+          <li><a href="/announcing-alacritty/">Announcing Alacritty, a GPU-accelerated terminal emulator</a>
+            <span>JANUARY  6, 2017</span></li>
+          <li><a href="/from-str-to-cow/">From &str to Cow</a>
+            <span>APRIL 16, 2016</span></li>
+          <li><a href="/youcompleteme-rust/">YouCompleteMe, Rust</a>
+            <span>JANUARY  8, 2016</span></li>
+      </ol>
+
+      <h2>Tags</h2>
+      <ol>
+          <li><a href="/tags/vim/">Vim (1)</a></li>
+          <li><a href="/tags/youcompleteme/">YouCompleteMe (1)</a></li>
+          <li><a href="/tags/rust/">Rust (3)</a></li>
+          <li><a href="/tags/alacritty/">Alacritty (1)</a></li>
+      </ol>
+
+      <h2>By Year</h2>
+      <ol>
+          <li><a href="/2017/">2017 (1)</a></li>
+          <li><a href="/2016/">2016 (2)</a></li>
+      </ol>
+    </aside>
+    -->
+  </body>
+</html>

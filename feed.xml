@@ -5,10 +5,287 @@
   <id>http://blog.url.com/</id>
   <link href="http://blog.url.com/"/>
   <link href="http://blog.url.com/feed.xml" rel="self"/>
-  <updated>2016-04-15T17:00:00-07:00</updated>
+  <updated>2017-01-05T16:00:00-08:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Announcing Alacritty, a GPU-accelerated terminal emulator</title>
+    <link rel="alternate" href="http://blog.url.com/announcing-alacritty/"/>
+    <id>http://blog.url.com/announcing-alacritty/</id>
+    <published>2017-01-05T16:00:00-08:00</published>
+    <updated>2017-01-06T09:58:38-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; is a blazing fast, GPU accelerated terminal emulator. It&amp;rsquo;s written
+in Rust and uses OpenGL for rendering to be the fastest terminal emulator
+available. &lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; is available on GitHub in source form.&lt;/p&gt;
+
+&lt;p&gt;&lt;img width="743" alt="Alacritty Screenshot" src="https://cloud.githubusercontent.com/assets/4285147/21690874/19037262-d32b-11e6-9c18-706b1f979eb7.png"&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p align="center"&gt;
+  &lt;em&gt;Alacritty running vim inside tmux&lt;/em&gt;
+&lt;/p&gt;
+
+&lt;h1 id="alacritty"&gt;Alacritty&lt;/h1&gt;
+
+&lt;p&gt;The rest of this post discusses what &lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; is, why it was built, who it&amp;rsquo;s
+targeted at, and some architectural decisions that have enabled its unparalleled
+performance. I&amp;rsquo;ll be giving a technical talk at the January 2017 &lt;a href="https://www.meetup.com/Rust-Bay-Area/events/236668916/"&gt;Rust Meetup in
+SF&lt;/a&gt; if you want to learn more.&lt;/p&gt;
+
+&lt;h2 id="about-the-project"&gt;About the project&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; is the result of frustration with existing terminal emulators.
+Using &lt;code&gt;vim&lt;/code&gt; inside &lt;code&gt;tmux&lt;/code&gt; in many terminals was a particularly bad experience.
+None of them were ever quite fast enough. Even so, Linux does have some decent
+alternatives. For example, &lt;code&gt;urxvt&lt;/code&gt; and &lt;code&gt;st&lt;/code&gt; give good experiences. The major
+downside with those options is difficulty of configuration and inability to run
+on non-X11 platforms. The options for macOS are particularly slow&amp;ndash;especially
+with a full-screen terminal on a 4k monitor. None of these terminals are
+cross-platform&amp;ndash;they are usually married to the windowing and font rendering
+APIs of their native platform.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; aims to address these issues. The project&amp;rsquo;s architecture and features
+are guided by a set of values:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Correctness:&lt;/strong&gt; Alacritty should be able to properly render modern terminal
+applications like &lt;code&gt;tmux&lt;/code&gt; and &lt;code&gt;vim&lt;/code&gt;. Glyphs should be rendered properly, and
+the proper glyphs should be displayed.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Performance:&lt;/strong&gt; Alacritty should be the fastest terminal emulator available
+anywhere.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Appearance:&lt;/strong&gt; Alacritty should have beautiful font rendering and look
+fantastic on all supported platforms.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Simplicity:&lt;/strong&gt; Alacritty should be conservative about which features it
+offers. As we&amp;rsquo;ve learned from past terminal emulators, it&amp;rsquo;s far too easy to
+become bloated. &lt;code&gt;st&lt;/code&gt; taught us that it doesn&amp;rsquo;t need to be that way. Features
+like GUI-based configuration, tabs and scrollback are unnecessary. The latter
+features are better provided by a terminal multiplexer like &lt;code&gt;tmux&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Portability:&lt;/strong&gt; Alacritty should support major operating systems including
+Linux, macOS, and Windows.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id="initial-features"&gt;Initial Features&lt;/h2&gt;
+
+&lt;p&gt;Many programs work correctly and without issue. &lt;code&gt;vim&lt;/code&gt;, &lt;code&gt;tmux&lt;/code&gt;, &lt;code&gt;htop&lt;/code&gt;, various
+pagers and many other full-screen applications are rendered properly.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; is incredibly fast. Compare &lt;code&gt;find /usr&lt;/code&gt; or equivalent with
+your favorite terminal emulator. Keep in mind that command will be faster the
+second time it&amp;rsquo;s run due to OS caching. Alacritty&amp;rsquo;s performance scales well with
+screen size. Running at larger resolutions will tip the scale further in
+Alacritty&amp;rsquo;s favor.&lt;/p&gt;
+
+&lt;p&gt;Alacritty&amp;rsquo;s font rendering is great. Native font rasterization libraries are
+used on each platform, and sub-pixel anti-aliasing is supported on both macOS
+and Linux.&lt;/p&gt;
+
+&lt;p&gt;macOS and Linux are supported in this pre-alpha release. Windows is not yet part
+of the list, but the initial offering demonstrates making a cross-platform
+terminal emulator is possible.&lt;/p&gt;
+
+&lt;p&gt;Being a pre-alpha release, there is still pending work in key areas&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Less common applications have rendering issues&lt;/li&gt;
+&lt;li&gt;A small subset of systems have performance issues with the OpenGL renderer&lt;/li&gt;
+&lt;li&gt;Font rendering on macOS is not as good as the competition&lt;/li&gt;
+&lt;li&gt;Wayland is not natively supported&lt;/li&gt;
+&lt;li&gt;Fallback fonts are not supported&lt;/li&gt;
+&lt;li&gt;Full-screen mode is not supported on Linux&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Such issues will be resolved prior to a 1.0 release. Many of them will be
+resolved far earlier.&lt;/p&gt;
+
+&lt;h1 id="what-makes-alacritty-fast"&gt;What makes Alacritty fast&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt;&amp;rsquo;s biggest claim is that it&amp;rsquo;s the fastest terminal emulator
+available.  If there&amp;rsquo;s a case where it&amp;rsquo;s not, then it&amp;rsquo;s either a bug in
+Alacritty or a misconfigured system. Alacritty is fast for two reasons&amp;ndash;the
+OpenGL renderer and the high throughput parser.&lt;/p&gt;
+
+&lt;h2 id="opengl-rendering"&gt;OpenGL Rendering&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt;&amp;rsquo;s renderer is capable of doing ~500 FPS with a large screen
+full of text. This is made possible by efficient OpenGL usage. State changes are
+minimized as much as possible. Glyphs are rasterized only once and stored in a
+texture atlas. Instance data for glyphs is uploaded once per frame, and the
+screen is rendered in only two draw calls.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; isn&amp;rsquo;t concerned with trying to only redraw what&amp;rsquo;s necessary. The
+entire screen is redrawn each frame because it&amp;rsquo;s so cheap.&lt;/p&gt;
+
+&lt;p&gt;Nominally, Alacritty will draw a new frame whenever the terminal state changes,
+and only when the state changes. Alacritty will simply sit idle when there&amp;rsquo;s no
+new data from the pseudoterminal or input events from the users. This helps
+significantly with battery life.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; is very good at processing huge amounts of text. Say that a user
+wants to &lt;code&gt;cat 1gb_file.txt&lt;/code&gt;. There&amp;rsquo;s a lot of work for the parser to do. If
+Alacritty were drawing frames constantly on every change, it would take a long
+time to finish parsing and rendering the contents. Thankfully, V-Sync can help
+here.&lt;/p&gt;
+
+&lt;p&gt;V-Sync limits the frames drawn by Alacritty up to the monitor&amp;rsquo;s refresh
+rate. 60Hz is a typical value here. Using this number, there are 16.7ms
+available per frame. 2ms of that budget is occupied by the renderer, and the
+remaining 14.7ms are available to the parser to process that huge stream of
+text. Any text that is added to the terminal and scrolled past between frames
+will never be drawn. This is a &lt;strong&gt;huge&lt;/strong&gt; performance win! The parser can process
+many MBs of data between frames, and the user will still see text drawn very
+smoothly.&lt;/p&gt;
+
+&lt;h2 id="the-parser"&gt;The Parser&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt;&amp;rsquo;s performance is enhanced by having a good parser. Rust helped
+significantly with this by enabling us to write small testable components and
+combine them without overhead.&lt;/p&gt;
+
+&lt;h3 id="zero-cost-abstractions"&gt;Zero-cost abstractions&lt;/h3&gt;
+
+&lt;p&gt;Rust&amp;rsquo;s zero-cost abstractions enable building nicely abstracted components and
+later combining them as if they were hand-written as one initially.&lt;/p&gt;
+
+&lt;p&gt;The parser has an &lt;code&gt;advance()&lt;/code&gt; method which advances the state and sometimes
+dispatches actions to the generic &lt;code&gt;Perform&lt;/code&gt; argument. Here&amp;rsquo;s the signature:&lt;/p&gt;
+&lt;pre class="highlight rust"&gt;&lt;code&gt;&lt;span class="k"&gt;pub&lt;/span&gt; &lt;span class="k"&gt;fn&lt;/span&gt; &lt;span class="n"&gt;advance&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;P&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Perform&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;mut&lt;/span&gt; &lt;span class="k"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;performer&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;mut&lt;/span&gt; &lt;span class="n"&gt;P&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;byte&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;u8&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Whenever a byte arrives from the pseudoterminal, it is passed to this advance
+method. Some bytes will cause state to accumulate in the parser; other bytes
+will trigger an action. Actions might be something like printing a character to
+the screen or executing an escape sequence. These actions are defined on a
+&lt;code&gt;Perform&lt;/code&gt; trait which is passed to &lt;code&gt;advance()&lt;/code&gt;. For example, here&amp;rsquo;s the first
+couple of methods on the trait:&lt;/p&gt;
+&lt;pre class="highlight rust"&gt;&lt;code&gt;&lt;span class="c"&gt;/// Performs actions requested by the Parser&lt;/span&gt;
+&lt;span class="k"&gt;pub&lt;/span&gt; &lt;span class="k"&gt;trait&lt;/span&gt; &lt;span class="n"&gt;Perform&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c"&gt;/// Draw a character to the screen&lt;/span&gt;
+    &lt;span class="k"&gt;fn&lt;/span&gt; &lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;mut&lt;/span&gt; &lt;span class="k"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;char&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="c"&gt;/// Execute a C0 or C1 control function&lt;/span&gt;
+    &lt;span class="k"&gt;fn&lt;/span&gt; &lt;span class="nf"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;mut&lt;/span&gt; &lt;span class="k"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;byte&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;u8&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="c"&gt;// ..&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To see how this turns into a zero-cost abstraction, let&amp;rsquo;s look at where the
+&lt;code&gt;Perform&lt;/code&gt; methods are actually called:&lt;/p&gt;
+&lt;pre class="highlight rust"&gt;&lt;code&gt;&lt;span class="k"&gt;match&lt;/span&gt; &lt;span class="n"&gt;action&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Print&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;performer&lt;/span&gt;&lt;span class="nf"&gt;.print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;byte&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nb"&gt;char&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Execute&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;performer&lt;/span&gt;&lt;span class="nf"&gt;.execute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;byte&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="c"&gt;// ..&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Assuming the concrete &lt;code&gt;Perform&lt;/code&gt; type requests &lt;code&gt;#[inline]&lt;/code&gt; on these methods, they
+will likely be inlined at the call site here and avoid function call overhead.&lt;/p&gt;
+
+&lt;p&gt;This same pattern is used for multiple layers of abstraction. &lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt;&amp;rsquo;s
+&lt;code&gt;vte::Perform&lt;/code&gt; impl actually delegates to an &lt;code&gt;ansi::Handler&lt;/code&gt; type for actions
+which requires additional parsing (eg. &lt;code&gt;csi_dispatch()&lt;/code&gt;).  The result is that we
+get nice abstractions for things like &lt;code&gt;vte::Perform&lt;/code&gt; and &lt;code&gt;ansi::Handler&lt;/code&gt;, and
+the parsing code compiles into what looks like a big hand-written state machine.&lt;/p&gt;
+
+&lt;h3 id="table-driven-parsing"&gt;Table-driven parsing&lt;/h3&gt;
+
+&lt;p&gt;Both the &lt;a href="https://docs.rs/utf8parse"&gt;utf8parse&lt;/a&gt; and &lt;a href="https://docs.rs/vte"&gt;vte&lt;/a&gt; crates that were written for &lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; use
+table-driven parsers. The cool thing about these is that they have &lt;em&gt;very&lt;/em&gt; little
+branching; &lt;a href="https://docs.rs/utf8parse"&gt;utf8parse&lt;/a&gt; only has &lt;a href="https://github.com/jwilm/vte/blob/b016827f471041320996f3273b4e3058501d7edf/utf8parse/src/lib.rs#L61"&gt;one branch&lt;/a&gt; in the entire
+library!&lt;/p&gt;
+
+&lt;p&gt;The transition tables for both &lt;code&gt;vte&lt;/code&gt; and &lt;code&gt;utf8parse&lt;/code&gt; are written using a
+procedural macro. The macro translates a &lt;a href="https://github.com/jwilm/vte/blob/master/src/table.rs.in"&gt;high-level definition&lt;/a&gt; of the state
+machine transitions to &lt;a href="https://github.com/jwilm/vte/blob/master/src/table.rs"&gt;low-level lookup tables&lt;/a&gt;. That is, the state machine can
+be described like this:&lt;/p&gt;
+&lt;pre class="highlight rust"&gt;&lt;code&gt;&lt;span class="c"&gt;// Transition tables description. Much was omitted for brevity.&lt;/span&gt;
+&lt;span class="k"&gt;pub&lt;/span&gt; &lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="n"&gt;STATE_CHANGE&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="nb"&gt;u8&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="mi"&gt;256&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nd"&gt;vt_state_table!&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Anywhere&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="mi"&gt;0x80&lt;/span&gt;...&lt;span class="mi"&gt;0x8f&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Execute&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Ground&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="mi"&gt;0x9b&lt;/span&gt;        &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;CsiEntry&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Ground&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="mi"&gt;0x00&lt;/span&gt;...&lt;span class="mi"&gt;0x17&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Execute&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="mi"&gt;0x20&lt;/span&gt;...&lt;span class="mi"&gt;0x7f&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Print&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="mi"&gt;0xf0&lt;/span&gt;...&lt;span class="mi"&gt;0xf4&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Utf8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;BeginUtf8&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Escape&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="mi"&gt;0x00&lt;/span&gt;...&lt;span class="mi"&gt;0x17&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Execute&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="mi"&gt;0x30&lt;/span&gt;...&lt;span class="mi"&gt;0x4f&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nn"&gt;Action&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;EscDispatch&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Ground&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="mi"&gt;0x58&lt;/span&gt;        &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nn"&gt;State&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="n"&gt;SosPmApcString&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The output of the procedural macro is the transition tables:&lt;/p&gt;
+&lt;pre class="highlight rust"&gt;&lt;code&gt;&lt;span class="c"&gt;// Transition tables&lt;/span&gt;
+&lt;span class="k"&gt;pub&lt;/span&gt; &lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="n"&gt;STATE_CHANGE&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="nb"&gt;u8&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="mi"&gt;256&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;92u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;92u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0u8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="c"&gt;// ..&lt;/span&gt;
+    &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="c"&gt;// ..&lt;/span&gt;
+&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Whenever a byte arrives, the parser looks up the table for the &lt;em&gt;current&lt;/em&gt; state
+and indexes with that byte. The value returned contains the &lt;em&gt;next&lt;/em&gt; state and any
+action required to make that transition. This process doesn&amp;rsquo;t requires
+branching&amp;ndash;it&amp;rsquo;s a simple, fast lookup.&lt;/p&gt;
+
+&lt;h1 id="new-libraries"&gt;New libraries&lt;/h1&gt;
+
+&lt;p&gt;Developing &lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; required several pieces of library infrastructure which
+were not available. A non-GPL licensed cross-platform clipboard library, a &lt;code&gt;vte&lt;/code&gt;
+parser, cross-platform font rasterization and &lt;code&gt;fontconfig&lt;/code&gt; bindings were all
+needed to build this project. &lt;a href="https://docs.rs/vte"&gt;vte&lt;/a&gt; and &lt;a href="https://docs.rs/utf8parse"&gt;utf8parse&lt;/a&gt; have been published on
+&lt;a href="https://crates.io"&gt;crates.io&lt;/a&gt;. The remaining libraries are still in &lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt;&amp;rsquo;s source tree and
+will be published independently at some point.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a quick run-down of the new libraries:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/jwilm/alacritty/tree/master/copypasta"&gt;copypasta&lt;/a&gt;: Cross-platform clipboard access library&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/jwilm/alacritty/tree/master/font"&gt;font&lt;/a&gt;: Cross-platform font rasterization library&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.rs/utf8parse"&gt;utf8parse&lt;/a&gt;: A table-driven UTF-8 parser&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.rs/vte"&gt;vte&lt;/a&gt;: A table-driven terminal protocol parser&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/jwilm/alacritty/tree/master/ffi-util"&gt;ffi-util&lt;/a&gt;: Utilities for simplifying wrapping FFI types. This project is
+from &lt;a href="https://github.com/sfackler"&gt;@sfackler&lt;/a&gt;&amp;rsquo;s &lt;a href="https://github.com/sfackler/rust-openssl"&gt;rust-openssl&lt;/a&gt; that I&amp;rsquo;ve put into a module
+for wrapping &lt;code&gt;fontconfig&lt;/code&gt; C types.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id="conclusion"&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt; is a very fast and usable terminal emulator. Although this is a
+pre-alpha release, it works well enough for many developers to be used as a
+daily driver. I&amp;rsquo;ve personally been using it as my primary terminal for a few
+months now.&lt;/p&gt;
+
+&lt;p&gt;For those wanting to learn more about the project, I&amp;rsquo;ll be giving a talk about
+Alacritty at the upcoming &lt;a href="https://www.meetup.com/Rust-Bay-Area/events/236668916/"&gt;Rust Meetup in SF&lt;/a&gt; on January 19, 2017. I&amp;rsquo;m also
+planning some more technical blog posts about various subsystems of Alacritty.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt;&amp;rsquo;s source is available on GitHub. Try it out for yourself!&lt;/p&gt;
+
+&lt;!--
+Other stuff that would be fun to talk about:
+
+- The grid container and its index types
+- Texture atlases
+- Config loading
+- Ref tests
+- VTE state table definitions
+
+--&gt;
+</content>
+  </entry>
   <entry>
     <title>From &amp;str to Cow</title>
     <link rel="alternate" href="http://blog.url.com/from-str-to-cow/"/>
