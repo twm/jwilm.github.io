@@ -1,9 +1,8 @@
 ---
 title: Announcing Alacritty, a GPU-accelerated terminal emulator
-date: 2017-01-05
+date: 2017-01-06
 tags: Rust, Alacritty
 description: Initial source-only release of Alacritty
-published: false
 ---
 
 [Alacritty] is a blazing fast, GPU accelerated terminal emulator. It's written
