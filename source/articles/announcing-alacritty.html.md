@@ -20,23 +20,24 @@ READMORE
 
 # Alacritty
 
-The rest of this post discusses what Alacritty is, why it was built, who it's
+The rest of this post discusses what [Alacritty] is, why it was built, who it's
 targeted at, and some architectural decisions that have enabled its unparalleled
 performance. I'll be giving a technical talk at the January 2017 [Rust Meetup in
 SF] if you want to learn more.
 
 ## About the project
 
-Alacritty is the result of frustration with existing terminal emulators.
+[Alacritty] is the result of frustration with existing terminal emulators.
 Using `vim` inside `tmux` in many terminals was a particularly bad experience.
-Nothing was ever quite fast enough. Many Linux alternatives are actually decent.
-For example, `urxvt` and `st` give good experiences. But they are difficult to
-configure. The options for macOS are even worse, especially with a full-screen
-terminal on a 4k monitor. None of these terminals are cross-platform--they are
-usually married to the windowing and font rendering APIs of their native
-platform.
+None of them were ever quite fast enough. Even so, Linux does have some decent
+alternatives. For example, `urxvt` and `st` give good experiences. The major
+downside for those options is difficulty in configuration and inability to run
+on non-X11 platforms. The options for macOS are even worse--especially with a
+full-screen terminal on a 4k monitor. None of these terminals are
+cross-platform--they are usually married to the windowing and font rendering
+APIs of their native platform.
 
-Alacritty aims to address those issues. The project's architecture and features
+[Alacritty] aims to address those issues. The project's architecture and features
 are guided by a set of values:
 
 1. **Correctness:** Alacritty should be able to properly render modern terminal
@@ -47,7 +48,7 @@ are guided by a set of values:
 3. **Appearance:** Alacritty should have beautiful font rendering and look
    fantastic on all supported platforms.
 4. **Simplicity:** Alacritty should be conservative about which features it
-   adds. As we've learned from past terminal emulators, it's far too easy to
+   offers. As we've learned from past terminal emulators, it's far too easy to
    become bloated. `st` taught us that it doesn't need to be that way. Features
    like GUI-based configuration, tabs and scrollback are unnecessary. The latter
    features are better provided by a terminal multiplexer like `tmux`.
@@ -59,7 +60,7 @@ are guided by a set of values:
 Many programs work correctly and without issue. `vim`, `tmux`, `htop`, various
 pagers and many other full-screen applications are rendered properly.
 
-Alacritty is incredibly fast. Compare `find /usr` or equivalent with
+[Alacritty] is incredibly fast. Compare `find /usr` or equivalent with
 your favorite terminal emulator. Keep in mind that command will be faster the
 second time it's run due to OS caching. Alacritty's performance scales well with
 screen size. Running at larger resolutions will tip the scale further in
@@ -87,20 +88,20 @@ resolved long before then.
 
 # What makes Alacritty fast
 
-Alacritty's biggest claim is that it's the fastest terminal emulator available.
-If there's a case where it's not, then it's either a bug in Alacritty or a
-misconfigured system. Alacritty is fast for two reasons--the OpenGL renderer
-and the high throughput parser.
+[Alacritty]'s biggest claim is that it's the fastest terminal emulator
+available.  If there's a case where it's not, then it's either a bug in
+Alacritty or a misconfigured system. Alacritty is fast for two reasons--the
+OpenGL renderer and the high throughput parser.
 
 ## OpenGL Rendering
 
-Alacritty's renderer is capable of doing ~500 FPS with a large screen
+[Alacritty]'s renderer is capable of doing ~500 FPS with a large screen
 full of text. This is made possible by efficient OpenGL usage. State changes are
 minimized as much as possible. Glyphs are rasterized only once and stored in a
 texture atlas. Instance data for glyphs is uploaded once per frame, and the
 screen is rendered in only two draw calls.
 
-Alacritty isn't concerned with trying to only redraw what's necessary. The
+[Alacritty] isn't concerned with trying to only redraw what's necessary. The
 entire screen is redrawn each frame because it's so cheap.
 
 Nominally, Alacritty will draw a new frame whenever the terminal state changes,
@@ -108,10 +109,11 @@ and only when the state changes. Alacritty will simply sit idle when there's no
 new data from the pseudoterminal or input events from the users. This helps
 significantly with battery life.
 
-Alacritty is very good at processing huge amounts of text. Say that a user wants
-to `cat 1gb_file.txt`. There's a lot of work for the parser to do. If Alacritty
-were drawing frames constantly on every change, it would take a long time to
-finish parsing and rendering the contents. Thankfully, V-Sync can help here.
+[Alacritty] is very good at processing huge amounts of text. Say that a user
+wants to `cat 1gb_file.txt`. There's a lot of work for the parser to do. If
+Alacritty were drawing frames constantly on every change, it would take a long
+time to finish parsing and rendering the contents. Thankfully, V-Sync can help
+here.
 
 V-Sync limits the frames drawn by Alacritty up to the monitor's refresh
 rate. 60Hz is a typical value here. Using this number, there are 16.7ms
@@ -124,7 +126,7 @@ smoothly.
 
 ## The Parser
 
-Alacritty's performance is enhanced by having a good parser. Rust helped
+[Alacritty]'s performance is enhanced by having a good parser. Rust helped
 significantly with this by enabling us to write small testable components and
 combine them without overhead.
 
@@ -135,7 +137,7 @@ components and then combine them together as if they were one big hand-written
 state machine.
 
 The parser has an `advance()` method which advances the state and sometimes
-dispatches actions to the `Perform`. Here's the signature:
+dispatches actions to the generic `Perform` argument. Here's the signature:
 
 ```rust
 pub fn advance<P: Perform>(&mut self, performer: &mut P, byte: u8);
@@ -144,8 +146,8 @@ pub fn advance<P: Perform>(&mut self, performer: &mut P, byte: u8);
 Whenever a byte arrives from the pseudoterminal, it is passed to this advance
 method. Some bytes will cause state to accumulate in the parser; other bytes
 will trigger an action. Actions might be something like printing a character to
-the screen or executing a CSI escape sequence. These actions are defined on a
-`Perform` type which is passed to `advance()`. For example, here's the first
+the screen or executing an escape sequence. These actions are defined on a
+`Perform` trait which is passed to `advance()`. For example, here's the first
 couple of methods on the trait:
 
 ```rust
@@ -175,7 +177,7 @@ match action {
 Assuming the concrete `Perform` type requests `#[inline]` on these methods, they
 will likely be inlined at the call site here and avoid function call overhead.
 
-This same pattern is used for multiple layers of abstraction. Alacritty's
+This same pattern is used for multiple layers of abstraction. [Alacritty]'s
 `vte::Perform` impl actually delegates to an `ansi::Handler` type for actions
 which requires additional parsing (eg. `csi_dispatch()`).  The result is that we
 get nice abstractions for things like `vte::Perform` and `ansi::Handler`, and
@@ -183,7 +185,7 @@ the parsing code compiles into what looks like a big hand-written state machine.
 
 ### Table-driven parsing
 
-Both the [utf8parse] and [vte] crates that were written for Alacritty use
+Both the [utf8parse] and [vte] crates that were written for [Alacritty] use
 table-driven parsers. The cool thing about these is that they have *very* little
 branching; [utf8parse] only has [one branch][utf8parse branch] in the entire
 library!
@@ -235,11 +237,11 @@ branching--it's a simple, fast lookup.
 
 # New libraries
 
-Developing Alacritty required several pieces of library infrastructure which was
-not available. A non-GPL licensed cross-platform clipboard library, a `vte`
+Developing [Alacritty] required several pieces of library infrastructure which
+was not available. A non-GPL licensed cross-platform clipboard library, a `vte`
 parser, cross-platform font rasterization and `fontconfig` bindings were all
 needed to build this project. [vte] and [utf8parse] have been published on
-[crates.io]. The remaining libraries are still in Alacritty's source tree and
+[crates.io]. The remaining libraries are still in [Alacritty]'s source tree and
 will be published independently at some point.
 
 Here's a quick run-down of the new libraries:
@@ -254,7 +256,7 @@ Here's a quick run-down of the new libraries:
 
 # Conclusion
 
-Alacritty is a very fast and usable terminal emulator. Although this is a
+[Alacritty] is a very fast and usable terminal emulator. Although this is a
 pre-alpha release, it works well enough for many developers to be used as a
 daily driver. I've personally been using it as my primary terminal for a few
 months now.
@@ -264,12 +266,6 @@ Alacritty at the upcoming [Rust Meetup in SF] on January 19. I'm also planning
 some more technical blog posts about various subsystems of Alacritty.
 
 [Alacritty]'s source is available on GitHub. Try it out for yourself!
-
-# Graveyard
-
-Once Alacritty reaches an alpha level of readiness, precompiled binaries will be
-provided for supported operating systems.
-
 
 
 [Alacritty]: https://github.com/jwilm/alacritty
