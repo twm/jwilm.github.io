@@ -1,24 +1,22 @@
 ---
-title: Announcing Alacritty, a GPU-enhanced terminal emulator
+title: Announcing Alacritty, a GPU-accelerated terminal emulator
 date: 2017-01-05
 tags: Rust, Alacritty
 description: Initial source-only release of Alacritty
 published: false
 ---
 
-Alacritty is a new, blazing fast terminal emulator. It's written in Rust and
-uses OpenGL for rendering to be the fastest terminal emulator available. Try it
-today! Alacritty is [available on GitHub][Alacritty] in source form. Once
-Alacritty reaches an alpha level of readiness, precompiled binaries will be
-provided for supported operating systems.
+[Alacritty] is a blazing fast, GPU accelerated terminal emulator. It's written in
+Rust and uses OpenGL for rendering to be the fastest terminal emulator
+available. [Alacritty] is available on GitHub in source form. 
 
 <img width="743" alt="Alacritty Screenshot" src="https://cloud.githubusercontent.com/assets/4285147/21690874/19037262-d32b-11e6-9c18-706b1f979eb7.png">
 
 READMORE
 
-_The screenshot included with this post shows vim running inside tmux and
-being rendered by Alacritty. The file being edited is src/main.rs under the
-Alacritty source tree._
+<p align="center">
+  <em>Alacritty running vim inside tmux</em>
+</p>
 
 # Alacritty
 
@@ -33,9 +31,10 @@ Alacritty is the result of frustration with existing terminal emulators.
 Using `vim` inside `tmux` in many terminals was a particularly bad experience.
 Nothing was ever quite fast enough. Many Linux alternatives are actually decent.
 For example, `urxvt` and `st` give good experiences. But they are difficult to
-configure. macOS options are worse yet, especially with a full-screen terminal
-on a 4k monitor. None of these terminals are cross-platform - they are usually
-married to the windowing and font rendering APIs of their native platform.
+configure. The options for macOS are even worse, especially with a full-screen
+terminal on a 4k monitor. None of these terminals are cross-platform--they are
+usually married to the windowing and font rendering APIs of their native
+platform.
 
 Alacritty aims to address those issues. The project's architecture and features
 are guided by a set of values:
@@ -43,9 +42,10 @@ are guided by a set of values:
 1. **Correctness:** Alacritty should be able to properly render modern terminal
    applications like `tmux` and `vim`. Glyphs should be rendered properly, and
    the proper glyphs should be displayed.
-2. **Performance:** Alacritty should be the fastest terminal emulator available.
-3. **Appearance:** Alacritty should have beautiful font rendering and look good
-   on all supported platforms.
+2. **Performance:** Alacritty should be the fastest terminal emulator available
+   anywhere.
+3. **Appearance:** Alacritty should have beautiful font rendering and look
+   fantastic on all supported platforms.
 4. **Simplicity:** Alacritty should be conservative about which features it
    adds. As we've learned from past terminal emulators, it's far too easy to
    become bloated. `st` taught us that it doesn't need to be that way. Features
@@ -65,18 +65,22 @@ second time it's run due to OS caching. Alacritty's performance scales well with
 screen size. Running at larger resolutions will tip the scale further in
 Alacritty's favor.
 
-Alacritty's font rendering is good. Native font rasterization libraries are used
-on each platform. Sub-pixel anti-aliasing is supported on both macOS and Linux.
+Alacritty's font rendering is great. Native font rasterization libraries are
+used on each platform, and sub-pixel anti-aliasing is supported on both macOS
+and Linux.
 
 macOS and Linux are supported in this pre-alpha release. Windows is not yet part
 of the list, but the initial offering demonstrates making a cross-platform
 terminal emulator is possible.
 
-Being a pre-alpha release, there is still pending work in key areas. Less common
-applications have rendering issues. A small subset of systems have performance
-issues with the OpenGL renderer. Font rendering on macOS is not as good as the
-competition. Wayland is not natively supported. Fallback fonts are not
-supported. Full-screen mode is not supported.
+Being a pre-alpha release, there is still pending work in key areas
+
+* Less common applications have rendering issues
+* A small subset of systems have performance issues with the OpenGL renderer
+* Font rendering on macOS is not as good as the competition
+* Wayland is not natively supported
+* Fallback fonts are not supported
+* Full-screen mode is not supported on Linux
 
 Such issues will be resolved prior to a 1.0 release. Many of them will be
 resolved long before then.
@@ -85,7 +89,7 @@ resolved long before then.
 
 Alacritty's biggest claim is that it's the fastest terminal emulator available.
 If there's a case where it's not, then it's either a bug in Alacritty or a
-misconfigured system. Alacritty is fast for two reasons - the OpenGL renderer
+misconfigured system. Alacritty is fast for two reasons--the OpenGL renderer
 and the high throughput parser.
 
 ## OpenGL Rendering
@@ -147,7 +151,7 @@ couple of methods on the trait:
 ```rust
 /// Performs actions requested by the Parser
 pub trait Perform {
-    /// Draw a character to the screen and update states
+    /// Draw a character to the screen
     fn print(&mut self, char);
 
     /// Execute a C0 or C1 control function
@@ -169,7 +173,7 @@ match action {
 ```
 
 Assuming the concrete `Perform` type requests `#[inline]` on these methods, they
-will likely bit inlined at the call site here and avoid function call overhead.
+will likely be inlined at the call site here and avoid function call overhead.
 
 This same pattern is used for multiple layers of abstraction. Alacritty's
 `vte::Perform` impl actually delegates to an `ansi::Handler` type for actions
@@ -182,20 +186,52 @@ the parsing code compiles into what looks like a big hand-written state machine.
 Both the [utf8parse] and [vte] crates that were written for Alacritty use
 table-driven parsers. The cool thing about these is that they have *very* little
 branching; [utf8parse] only has [one branch][utf8parse branch] in the entire
-library!  The down side with table-driven parsers like this is that you pay for
-the lack of branching in cache misses.
+library!
 
-Alacritty's performance is incredibly good even so. It would be beneficial to
-the project to actually investigate whether performance is better with the
-table-driven approach or using a big match block. This sort of performance
-testing needs to be done on the entire application; micro-benchmarks won't do
-because they don't have nearly the problems with cache locality as an entire
-program does.
+The transition tables for both `vte` and `utf8parse` are written using a
+procedural macro. The macro translates a [high-level definition] of the state
+machine transitions to [low-level lookup tables]. That is, the state machine can
+be described like this:
 
-The tables for the parsers are generated using a compiler plugin; it should be
-relatively easy to make these generate a `match` based implementation for
-performance comparison since they could share the [state transition
-definitions].
+```rust
+// Transition tables description. Much was omitted for brevity.
+pub static STATE_CHANGE: [[u8; 256]; 16] = vt_state_table! {
+    State::Anywhere => {
+        0x80...0x8f => (Action::Execute, State::Ground),
+        0x9b        => State::CsiEntry,
+    },
+    State::Ground => {
+        0x00...0x17 => Action::Execute,
+        0x20...0x7f => Action::Print,
+        0xf0...0xf4 => (State::Utf8, Action::BeginUtf8),
+    },
+    State::Escape => {
+        0x00...0x17 => Action::Execute,
+        0x30...0x4f => (Action::EscDispatch, State::Ground),
+        0x58        => State::SosPmApcString,
+    },
+}
+```
+
+The output of the procedural macro is the transition tables:
+
+```rust
+// Transition tables
+pub static STATE_CHANGE: [[u8; 256]; 16] = [
+    [
+        0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8,
+        0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8,
+        0u8, 0u8, 0u8, 0u8, 92u8, 0u8, 92u8, 10u8, 0u8, 0u8,
+        // ..
+    ],
+    // ..
+];
+```
+
+Whenever a byte arrives, the parser looks up the table for the _current_ state
+and indexes with that byte. The value returned contains the _next_ state and any
+action required to make that transition. This process doesn't requires
+branching--it's a simple, fast lookup.
 
 # New libraries
 
@@ -229,6 +265,13 @@ some more technical blog posts about various subsystems of Alacritty.
 
 [Alacritty]'s source is available on GitHub. Try it out for yourself!
 
+# Graveyard
+
+Once Alacritty reaches an alpha level of readiness, precompiled binaries will be
+provided for supported operating systems.
+
+
+
 [Alacritty]: https://github.com/jwilm/alacritty
 [copypasta]: https://github.com/jwilm/alacritty/tree/master/copypasta
 [font]: https://github.com/jwilm/alacritty/tree/master/font
@@ -242,6 +285,8 @@ some more technical blog posts about various subsystems of Alacritty.
 [crates.io]: https://crates.io
 [rust-openssl]: https://github.com/sfackler/rust-openssl
 [@sfackler]: https://github.com/sfackler
+[high-level definition]: https://github.com/jwilm/vte/blob/master/src/table.rs.in
+[low-level lookup tables]: https://github.com/jwilm/vte/blob/master/src/table.rs
 
 <!--
 Other stuff that would be fun to talk about:
