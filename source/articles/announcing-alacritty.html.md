@@ -263,7 +263,18 @@ For those wanting to learn more about the project, I'll be giving a talk about
 Alacritty at the upcoming [Rust Meetup in SF] on January 19, 2017. I'm also
 planning some more technical blog posts about various subsystems of Alacritty.
 
+This post has been discussed in several threads on Reddit and on Hacker News:
+
+- [Hacker News 1/6/2017](https://news.ycombinator.com/item?id=13338592)
+- [/r/rust 1/6/2017](https://www.reddit.com/r/rust/comments/5mf2yh/announcing_alacritty_a_gpuaccelerated_terminal/)
+- [/r/programming 1/6/2017](https://www.reddit.com/r/programming/comments/5mflek/alacritty_a_gpuaccelerated_terminal_emulator/)
+- [/r/rust 1/4/2017](https://www.reddit.com/r/rust/comments/5m20al/github_jwilmalacritty_a_crossplatform_gpu/)
+
+[Follow me on Twitter](https://twitter.com/i_am_jwilm) if you'd like
+to be notified about subsequent Alacritty releases and blog posts.
+
 [Alacritty]'s source is available on GitHub. Try it out for yourself!
+
 
 
 [Alacritty]: https://github.com/jwilm/alacritty
