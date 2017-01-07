@@ -14,7 +14,7 @@
     <link rel="alternate" href="http://blog.url.com/announcing-alacritty/"/>
     <id>http://blog.url.com/announcing-alacritty/</id>
     <published>2017-01-05T16:00:00-08:00</published>
-    <updated>2017-01-06T09:58:38-08:00</updated>
+    <updated>2017-01-06T20:47:50-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -271,6 +271,18 @@ months now.&lt;/p&gt;
 &lt;p&gt;For those wanting to learn more about the project, I&amp;rsquo;ll be giving a talk about
 Alacritty at the upcoming &lt;a href="https://www.meetup.com/Rust-Bay-Area/events/236668916/"&gt;Rust Meetup in SF&lt;/a&gt; on January 19, 2017. I&amp;rsquo;m also
 planning some more technical blog posts about various subsystems of Alacritty.&lt;/p&gt;
+
+&lt;p&gt;This post has been discussed in several threads on Reddit and on Hacker News:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://news.ycombinator.com/item?id=13338592"&gt;Hacker News 1/6/2017&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.reddit.com/r/rust/comments/5mf2yh/announcing_alacritty_a_gpuaccelerated_terminal/"&gt;/r/rust 1/6/2017&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.reddit.com/r/programming/comments/5mflek/alacritty_a_gpuaccelerated_terminal_emulator/"&gt;/r/programming 1/6/2017&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.reddit.com/r/rust/comments/5m20al/github_jwilmalacritty_a_crossplatform_gpu/"&gt;/r/rust 1/4/2017&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href="https://twitter.com/i_am_jwilm"&gt;Follow me on Twitter&lt;/a&gt; if you&amp;rsquo;d like
+to be notified about subsequent Alacritty releases and blog posts.&lt;/p&gt;
 
 &lt;p&gt;&lt;a href="https://github.com/jwilm/alacritty"&gt;Alacritty&lt;/a&gt;&amp;rsquo;s source is available on GitHub. Try it out for yourself!&lt;/p&gt;
 
